@@ -1,6 +1,10 @@
-# Chorgi
-Non AI midi generator which has been trained off of generic playing styles. 
+#Chorgi
 
-Please note that I am one person working on this project, I do not have the thousands of dollars that other companies making similar software have. I will create a roadmap once we have finished building the core parts and the UI of the software. 
+Chorgi is a non-AI MIDI generator developed to emulate generic playing styles, providing users with a straightforward and creative music composition tool.
 
-Currently it is limited to windows and cannot be used inside of a DAW, it runs outside of the DAW as it is 100% coded using Python and wrapping that into VST is going to be a pai, this is something that is most likely going to be a feature in 2.0.
+About the Project
+This project is developed independently and without the extensive financial resources available to larger companies producing similar software. Despite these constraints, Chorgi aims to deliver an innovative and functional solution for MIDI generation. A detailed roadmap will be shared once the foundational build is complete.
+
+Current Limitations
+Platform: Currently available only for Windows.
+Integration: Runs as a standalone application and is not yet compatible with DAWs (Digital Audio Workstations). Since Chorgi is fully coded in Python, wrapping it into a VST format presents unique challenges, which are being actively explored for future updates.

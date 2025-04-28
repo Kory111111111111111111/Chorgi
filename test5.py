@@ -1289,9 +1289,7 @@ class PianoRollWidget(QWidget):
         self.bass_color = QColor(255, 100, 100, 180) # Reddish
         self.arp_color = QColor(100, 255, 100, 180) # Greenish
         self.melody_color = QColor(255, 165, 0, 200) # Orange
-        self.grid_color = QColor(128, 128, 128, 100) # Grey
-        self.beat_color = QColor(80, 80, 80, 150) # Darker Grey
-        self.bar_color = QColor(50, 50, 50, 200) # Even Darker Grey
+        # Grid colors are now set in paintEvent based on theme
 
     def set_data(self, chords, arp, bass, melody, total_beats):
         self.chords_data = chords if chords else []
@@ -1306,7 +1304,12 @@ class PianoRollWidget(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         widget_rect = self.rect()
-        bg_color = self.palette().color(QPalette.ColorRole.Base) # Get background color from theme
+        # Get theme colors
+        bg_color = self.palette().color(QPalette.ColorRole.Base)
+        grid_color = self.palette().color(QPalette.ColorRole.AlternateBase).darker(110) # Use a darker version of alternate base for grid
+        beat_color = grid_color.darker(120)
+        bar_color = grid_color.darker(150)
+
         painter.fillRect(widget_rect, bg_color)
 
         w = widget_rect.width()
@@ -1316,12 +1319,13 @@ class PianoRollWidget(QWidget):
             return # Nothing to draw
 
         # --- Draw Grid Lines ---
-        # Horizontal lines (pitch) - Optional, can be dense
-        # note_height = h / self.pitch_span
-        # painter.setPen(self.grid_color)
-        # for i in range(self.pitch_span):
-        #     y = h - (i + 1) * note_height
-        #     painter.drawLine(0, int(y), w, int(y))
+        note_height = max(1.0, h / self.pitch_span) # Min height of 1 pixel
+
+        # Horizontal lines (pitch) - Draw faint lines for each pitch
+        painter.setPen(grid_color)
+        for i in range(self.pitch_span):
+            y = h - (i * note_height) # Draw line at the *top* of the note rectangle area
+            painter.drawLine(0, int(y), w, int(y))
 
         # Vertical lines (time)
         beats_per_bar = 4.0
@@ -1330,54 +1334,57 @@ class PianoRollWidget(QWidget):
         for beat in range(int(self.total_beats) + 1):
             x = w * (beat / self.total_beats)
             is_bar_line = (beat % beats_per_bar == 0)
-            painter.setPen(self.bar_color if is_bar_line else self.beat_color)
+            painter.setPen(bar_color if is_bar_line else beat_color)
             painter.drawLine(int(x), 0, int(x), h)
 
         # --- Draw Notes ---
-        note_height = max(1.0, h / self.pitch_span) # Min height of 1 pixel
+        note_pen = QPen(Qt.PenStyle.NoPen) # No border for notes generally
 
         # Helper to draw notes for a track
-        def draw_notes(notes_list, color, is_chord=False, is_arp=False):
+        def draw_notes(notes_list, color, is_chord=False):
             painter.setBrush(QBrush(color))
-            painter.setPen(Qt.PenStyle.NoPen) # No border for notes
+            painter.setPen(note_pen)
 
-            for note_info in notes_list:
+            current_chord_start_time = 0 # Only used for is_chord=True
+
+            for index, note_info in enumerate(notes_list):
                 if is_chord:
                     # chords_data = (display_name, original_notes, midi_notes, root_note, duration_beats)
-                    # We need start time. Let's recalculate it (inefficient but works for viz)
-                    start_time = 0
-                    for i in range(self.chords_data.index(note_info)):
-                        start_time += self.chords_data[i][4] # Add duration of previous chords
+                    # Use the pre-calculated start time for this chord
+                    start_time = current_chord_start_time
                     pitches = note_info[2] # midi_notes
                     duration = note_info[4]
-                    if not pitches: continue
+                    # Update start time for the *next* chord
+                    current_chord_start_time += duration
+
+                    if not pitches or duration <= 0: continue
                     for pitch in pitches:
-                         # Draw each note in the chord
                          if self.min_pitch <= pitch <= self.max_pitch:
-                            y = h - ((pitch - self.min_pitch + 1) * note_height)
+                            y = h - ((pitch - self.min_pitch + 1) * note_height) # Top edge of note
                             x = w * (start_time / self.total_beats)
                             rect_w = w * (duration / self.total_beats)
-                            note_rect = QRectF(x, y, max(1.0, rect_w), note_height) # Min width 1 pixel
+                            # Use QRectF for precision, ensure minimum visible size
+                            note_rect = QRectF(x, y, max(1.5, rect_w - 0.2), max(1.0, note_height - 0.2)) # Min w=1.5, add tiny gap
                             painter.drawRect(note_rect)
                 else:
                     # arp_data = (pitch, start_time, duration, velocity)
-                    # bass_data = (pitch, start_time, duration)
-                    # melody_data = (pitch, start_time, duration)
+                    # bass/melody_data = (pitch, start_time, duration)
                     pitch = note_info[0]
                     start_time = note_info[1]
                     duration = note_info[2]
 
-                    if self.min_pitch <= pitch <= self.max_pitch:
-                        y = h - ((pitch - self.min_pitch + 1) * note_height)
+                    if self.min_pitch <= pitch <= self.max_pitch and duration > 0:
+                        y = h - ((pitch - self.min_pitch + 1) * note_height) # Top edge of note
                         x = w * (start_time / self.total_beats)
                         rect_w = w * (duration / self.total_beats)
-                        note_rect = QRectF(x, y, max(1.0, rect_w), note_height) # Min width 1 pixel
+                        # Use QRectF for precision, ensure minimum visible size
+                        note_rect = QRectF(x, y, max(1.5, rect_w - 0.2), max(1.0, note_height - 0.2)) # Min w=1.5, add tiny gap
                         painter.drawRect(note_rect)
 
-        # Draw tracks (order matters for overlap visibility)
+        # Draw tracks (order matters for overlap visibility - draw chords first)
         if self.chords_data: draw_notes(self.chords_data, self.chord_color, is_chord=True)
         if self.bass_data: draw_notes(self.bass_data, self.bass_color)
-        if self.arp_data: draw_notes(self.arp_data, self.arp_color, is_arp=True)
+        if self.arp_data: draw_notes(self.arp_data, self.arp_color)
         if self.melody_data: draw_notes(self.melody_data, self.melody_color)
 
 
@@ -2559,29 +2566,33 @@ class ChorgiWindow(QWidget):
 
             # --- Handle Result and Saving ---
             if success:
-                # Display Progression
+                # --- MODIFIED: Chord Display Logic ---
                 if hasattr(self, 'chord_display_label') and self.generated_chords_progression:
-                    chord_names = [prog[0].split('/')[0] for prog in self.generated_chords_progression] # Get base name
-                    display_limit = 12 # Limit displayed chords
+                    # Extract base chord names robustly (before first '/')
+                    chord_names = [prog[0].split('/')[0] for prog in self.generated_chords_progression if prog[0]] # prog[0] is display_name
+                    display_limit = 16 # Show more chords if possible
                     display_text = ""
-                    # Handle different chord rates for display
-                    if chord_rate_selection == "1 / Bar" or prog_style_selection == "Blues (12 Bar)": # Treat blues as 1/bar for display
-                         display_text = " | ".join(chord_names[:display_limit])
-                         if len(chord_names) > display_limit: display_text += " | ..."
+                    num_chords = len(chord_names)
+
+                    if chord_rate_selection == "1 / Bar" or prog_style_selection == "Blues (12 Bar)":
+                        display_text = " | ".join(chord_names[:display_limit])
+                        if num_chords > display_limit: display_text += " | ..."
                     else: # 2 / Bar - group them
                         grouped_names = []
-                        for i in range(0, len(chord_names), 2):
-                            if i+1 < len(chord_names):
+                        limit_bars = display_limit // 2
+                        for i in range(0, num_chords, 2):
+                            if i+1 < num_chords:
                                 grouped_names.append(f"{chord_names[i]} {chord_names[i+1]}")
                             else:
                                 grouped_names.append(chord_names[i]) # Handle odd number
-                            if len(grouped_names) >= display_limit // 2: break # Limit bars shown
+                            if len(grouped_names) >= limit_bars: break # Limit bars shown
                         display_text = " | ".join(grouped_names)
-                        if len(chord_names) > display_limit: display_text += " | ..."
+                        if num_chords > display_limit: display_text += " | ..." # Check original limit
 
                     self.chord_display_label.setText(f"Progression: {display_text}")
-                else:
-                     if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Progression generated, but display failed)")
+                elif hasattr(self, 'chord_display_label'):
+                    self.chord_display_label.setText("(Progression generated, but display failed)")
+                # --- END MODIFIED Chord Display ---
 
                 # --- Update Piano Roll ---
                 if hasattr(self, 'piano_roll_widget'):
@@ -2630,15 +2641,15 @@ class ChorgiWindow(QWidget):
         # --- Error Handling ---
         except ValueError as ve:
             print(f"Value ERROR: {ve}"); traceback.print_exc(); self.show_error_message("Input Error", f"Check settings:\n{ve}"); self.update_status("Error: Invalid input."); self.update_drag_label(None)
-            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("")
+            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Generation Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except RuntimeError as re:
             print(f"Runtime ERROR: {re}"); traceback.print_exc(); self.show_error_message("Generation Error", f"{re}"); self.update_status(f"Error: {re}"); self.update_drag_label(None)
-            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("")
+            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Generation Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except Exception as e:
             print(f"ERROR: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected error:\n{e}"); self.update_status("Error. See console."); self.update_drag_label(None)
-            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("")
+            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Generation Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         finally:
             self.set_button_state(self.generate_button, True, "Generate MIDI")
@@ -3350,32 +3361,37 @@ class ChorgiWindow(QWidget):
                  else: disp_fldr = f"...{os.sep}{os.path.basename(self.save_directory)}"
             except Exception: disp_fldr = self.save_directory
             self.update_status(f"Success! Saved:\n{out_fname}\nto {disp_fldr}"); self.update_drag_label(out_path)
+
+            # --- MODIFIED: Chord Display Update on Regen ---
             if hasattr(self, 'chord_display_label') and self.generated_chords_progression:
-                # Refresh chord display (it might have been overwritten)
-                chord_names = [prog[0].split('/')[0] for prog in self.generated_chords_progression]
+                # Refresh chord display (it might have been overwritten during status updates)
+                chord_names = [prog[0].split('/')[0] for prog in self.generated_chords_progression if prog[0]]
+                # Get current chord rate setting for formatting
                 chord_rate_sel = self.chord_rate_combo.currentText() if hasattr(self, 'chord_rate_combo') else "1 / Bar"
-                display_limit = 12
-                display_text = ""
-                # Find current progression style to correctly format display
                 current_prog_style = self.prog_style_combo.currentText() if hasattr(self, 'prog_style_combo') else PROG_STYLE_OPTIONS[0]
                 is_blues = current_prog_style == "Blues (12 Bar)"
+                display_limit = 16
+                display_text = ""
+                num_chords = len(chord_names)
 
                 if chord_rate_sel == "1 / Bar" or is_blues:
                     display_text = " | ".join(chord_names[:display_limit])
-                    if len(chord_names) > display_limit: display_text += " | ..."
+                    if num_chords > display_limit: display_text += " | ..."
                 else: # 2 / Bar
-                    grouped = [" ".join(chord_names[i:i+2]) for i in range(0, len(chord_names), 2)]
-                    display_text = " | ".join(grouped[:display_limit//2])
-                    if len(grouped) > display_limit//2 : display_text += " | ..."
+                    grouped = [" ".join(chord_names[i:i+2]) for i in range(0, num_chords, 2)]
+                    limit_bars = display_limit // 2
+                    display_text = " | ".join(grouped[:limit_bars])
+                    if num_chords > display_limit : display_text += " | ..."
                 self.chord_display_label.setText(f"Progression: {display_text}")
+            # --- END MODIFIED Chord Display ---
 
         except RuntimeError as rterr:
             print(f"Runtime ERR regen: {rterr}"); traceback.print_exc(); self.show_error_message("Regen Error", f"{rterr}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
-            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("")
+            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except Exception as e:
             print(f"ERR regen: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected regeneration error:\n{e}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
-            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("")
+            if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         finally: self.set_button_state(self.regenerate_button, True, "Regenerate Part"); self.set_button_state(self.generate_button, True)
 
@@ -3478,8 +3494,8 @@ class ChorgiWindow(QWidget):
 # --- Application Entry Point ---
 if __name__ == '__main__':
     # --- Changed Application Name and Version ---
-    QCoreApplication.setApplicationName("Chorgi Version 0.7") # Incremented Version
-    QCoreApplication.setApplicationVersion("0.7")
+    QCoreApplication.setApplicationName("Chorgi Version 0.7.1") # Incremented Version slightly
+    QCoreApplication.setApplicationVersion("0.7.1")
 
     app = QApplication(sys.argv)
 

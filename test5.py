@@ -1291,6 +1291,14 @@ class PianoRollWidget(QWidget):
         self.melody_color = QColor(255, 165, 0, 200) # Orange
         # Grid colors are now set in paintEvent based on theme
 
+        # --- ADDED TOOLTIP ---
+        self.setToolTip("Color Legend:\n"
+                        "- Blue: Chords\n"
+                        "- Red: Bassline\n"
+                        "- Green: Arpeggio\n"
+                        "- Orange: Melody")
+        # --- END ADDED TOOLTIP ---
+
     def set_data(self, chords, arp, bass, melody, total_beats):
         self.chords_data = chords if chords else []
         self.arp_data = arp if arp else []
@@ -1495,20 +1503,21 @@ class ChorgiWindow(QWidget):
 
 
         # --- Dark (Nord) Stylesheet --- (Added bold for #ChordDisplayLabel, #DragMidiLabel, made Drag Label smaller)
+        # --- FIX: Commented out QToolTip styling ---
         self.dark_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
                 color: #ECEFF4; /* FG_COLOR_D */
                 background-color: #2E3440; /* BG_COLOR_D */
             }}
-            QToolTip {{ /* Explicit tooltip styling */
-                color: #ECEFF4; /* TOOLTIP_FG_D */
-                background-color: #4C566A; /* TOOLTIP_BG_D */
-                border: 1px solid #5E81AC;
-                padding: 3px;
-                border-radius: 3px;
-                opacity: 230; /* Slightly transparent */
-            }}
+            /* QToolTip {{ */ /* Explicit tooltip styling - COMMENTED OUT */
+                /* color: #ECEFF4; */ /* TOOLTIP_FG_D */
+                /* background-color: #4C566A; */ /* TOOLTIP_BG_D */
+                /* border: 1px solid #5E81AC; */
+                /* padding: 3px; */
+                /* border-radius: 3px; */
+                /* opacity: 230; */ /* Slightly transparent */
+            /* }} */
             QGroupBox {{
                 background-color: #3B4252; /* BASE_COLOR_D */
                 border: 1px solid #434C5E; /* BORDER_COLOR_D */
@@ -1655,20 +1664,21 @@ class ChorgiWindow(QWidget):
         """
 
         # --- Light (Grey) Stylesheet --- (Added bold, modified RadioButton indicator, made Drag Label smaller)
+        # --- FIX: Commented out QToolTip styling ---
         self.light_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
                 color: #2E3440; /* FG_COLOR_L - Dark Text */
                 background-color: #DCDCDC; /* BG_COLOR_L - Grey BG */
             }}
-            QToolTip {{ /* Explicit tooltip styling */
-                color: #000000; /* TOOLTIP_FG_L */
-                background-color: #FFFFE1; /* TOOLTIP_BG_L */
-                border: 1px solid #B0B0B0; /* BORDER_COLOR_L */
-                padding: 3px;
-                border-radius: 3px;
-                opacity: 230;
-            }}
+            /* QToolTip {{ */ /* Explicit tooltip styling - COMMENTED OUT */
+                /* color: #000000; */ /* TOOLTIP_FG_L */
+                /* background-color: #FFFFE1; */ /* TOOLTIP_BG_L */
+                /* border: 1px solid #B0B0B0; */ /* BORDER_COLOR_L */
+                /* padding: 3px; */
+                /* border-radius: 3px; */
+                /* opacity: 230; */
+            /* }} */
             QGroupBox {{
                 background-color: #F0F0F0; /* BASE_COLOR_L - Lighter BG for contrast */
                 border: 1px solid #B0B0B0; /* BORDER_COLOR_L */
@@ -2218,7 +2228,7 @@ class ChorgiWindow(QWidget):
     # --- NEW: Piano Roll Widget Creation ---
     def create_piano_roll_widget(self):
         self.piano_roll_widget = PianoRollWidget(self)
-        self.piano_roll_widget.setToolTip("Visual representation of the generated notes")
+        # --- Tooltip is now set within PianoRollWidget __init__ ---
         self.main_layout.addWidget(self.piano_roll_widget)
 
     def create_drag_drop_area(self):
@@ -3232,8 +3242,7 @@ class ChorgiWindow(QWidget):
 
 
     def run_regenerate_selected_parts(self):
-        """Regenerates only the selected Arp, Melody, or Bass part."""
-        # --- Needs Adaptation for New Progression Structure ---
+        """Regenerates only the selected Arp, Melody, or Bass part and makes ONLY that part draggable."""
         if not self.generated_chords_progression:
             self.show_warning_message("Warning", "Generate full sequence first."); return
         if not self.save_directory and not self._get_save_directory():
@@ -3241,7 +3250,7 @@ class ChorgiWindow(QWidget):
 
         part_to_regen = self.regenerate_part_combo.currentText()
         if hasattr(self, 'chord_display_label'): self.chord_display_label.setText(f"(Regenerating {part_to_regen}...)")
-        # Clear piano roll before regen
+        # Clear piano roll before regen (it will be repopulated later)
         if hasattr(self, 'piano_roll_widget'):
             self.piano_roll_widget.set_data([], [], [], [], 16.0)
 
@@ -3270,14 +3279,29 @@ class ChorgiWindow(QWidget):
             scale_notes = get_natural_minor_scale_notes(root_midi) if is_minor else get_major_scale_notes(root_midi)
             if not scale_notes: raise RuntimeError("Failed to generate scale notes for regeneration.")
 
-            regen_data = []; regen_name = ""; track_suffix = ""; vol = 100; self.generation_count += 1
+            regen_data = []; regen_name = ""; track_suffix = ""; vol = 100
+            self.generation_count += 1
+            single_part_out_path = None # Path for the single part MIDI file
+
+            # Generate base filename (use last generated or create a fallback)
+            base_name = self.last_generated_filename_base
+            if not base_name:
+                 prog_style_combo = self.prog_style_combo.currentText() if hasattr(self, 'prog_style_combo') else "Unknown"
+                 prog_tag = f"_{prog_style_combo.split(' ')[0]}"
+                 base_name = f"{self.last_generated_key.replace(' ', '_')}{prog_tag}_{self.last_generated_num_bars}B"
 
             if part_to_regen == "Arp":
                 self.update_status("Regenerating Arp..."); self.generated_arp_midi_data = []
-                # Pass scale_notes, arp settings. Progression data is already in self.generated_chords_progression
                 self._generate_arpeggio(arp_style_sel, arp_octave_sel, scale_notes)
-                regen_data = self.generated_arp_midi_data; regen_name = "Arp"; track_suffix = f"Arp ({last_key} {pool_style})"; vol = 95
+                regen_data = self.generated_arp_midi_data; regen_name = "Arp"; track_suffix = f"Regenerated Arp ({last_key})"; vol = 95
                 if not regen_data: self.show_warning_message("Regen Warning", "Arp generation produced no notes.")
+                else:
+                    # Write ONLY the Arp part to a separate file
+                    out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
+                    out_path_single = os.path.join(self.save_directory, out_fname_single)
+                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Arp", vol, bpm, embed_t)
+                    single_part_out_path = out_path_single
+
             elif part_to_regen == "Melody":
                 self.update_status("Regenerating Melody..."); self.generated_melody_midi_data = []
                 melody_func_map = {
@@ -3287,7 +3311,6 @@ class ChorgiWindow(QWidget):
                     "Leaps & Steps": generate_melody_leaps_steps,
                     "Minimalist": generate_melody_minimalist,
                     "Sustained Lead": generate_melody_sustained_lead,
-                    # "Jazz Licks": generate_melody_jazz_licks # Removed
                 }
                 melody_func = melody_func_map.get(melody_gen_style_sel)
                 if melody_gen_style_sel == "Random Style":
@@ -3299,12 +3322,17 @@ class ChorgiWindow(QWidget):
                     melody_func = generate_melody_chord_focus
 
                 regen_data = melody_func(self.generated_chords_progression, scale_notes, melody_style_sel, melody_speed_sel, melody_octave_sel, melody_instrument_sel) # Pass instrument
-                self.generated_melody_midi_data = regen_data; regen_name = "Melody"
-                track_suffix = f"Melody ({last_key} {pool_style} {melody_style_sel} {melody_speed_sel})"; vol = 100
+                self.generated_melody_midi_data = regen_data; regen_name = "Melody"; track_suffix = f"Regenerated Melody ({last_key})"; vol = 100
                 if not regen_data: self.show_warning_message("Regen Warning", "Melody generation produced no notes.")
+                else:
+                    # Write ONLY the Melody part to a separate file
+                    out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
+                    out_path_single = os.path.join(self.save_directory, out_fname_single)
+                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Melody", vol, bpm, embed_t)
+                    single_part_out_path = out_path_single
+
             elif part_to_regen == "Bass":
                  self.update_status("Regenerating Bass..."); self.generated_bass_midi_data = []
-                 # --- NEW: Select bass function based on style ---
                  bass_func_map = {
                     "Standard": generate_bass_standard,
                     "Walking (Jazz)": generate_bass_walking,
@@ -3313,54 +3341,53 @@ class ChorgiWindow(QWidget):
                     "Hip Hop": generate_bass_hip_hop,
                     "808": generate_bass_808
                  }
-                 bass_func = bass_func_map.get(bass_style_sel, generate_bass_standard) # Default to standard
+                 bass_func = bass_func_map.get(bass_style_sel, generate_bass_standard)
                  if bass_style_sel == "Walking (Jazz)":
                      self.generated_bass_midi_data = bass_func(self.generated_chords_progression, scale_notes)
                  else:
-                     self.generated_bass_midi_data = bass_func(self.generated_chords_progression, scale_notes) # Pass scale notes for future use
+                     self.generated_bass_midi_data = bass_func(self.generated_chords_progression, scale_notes)
 
-                 regen_data = self.generated_bass_midi_data; regen_name = "Bass"; track_suffix = f"Bass ({last_key} {pool_style} {bass_style_sel})"; vol = 110
+                 regen_data = self.generated_bass_midi_data; regen_name = "Bass"; track_suffix = f"Regenerated Bass ({last_key} {bass_style_sel})"; vol = 110
                  if not regen_data: self.show_warning_message("Regen Warning", "Bass generation produced no notes.")
+                 else:
+                    # Write ONLY the Bass part to a separate file
+                    out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
+                    out_path_single = os.path.join(self.save_directory, out_fname_single)
+                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Bass", vol, bpm, embed_t)
+                    single_part_out_path = out_path_single
 
-            # Regenerate Filename
-            base_name = self.last_generated_filename_base
-            if not base_name: # Fallback filename base if needed
-                 prog_style_combo = self.prog_style_combo.currentText() if hasattr(self, 'prog_style_combo') else "Unknown"
-                 prog_tag = f"_{prog_style_combo.split(' ')[0]}"
-                 base_name = f"{self.last_generated_key.replace(' ', '_')}{prog_tag}_{self.last_generated_num_bars}B"
-            out_fname = f"{base_name}_{regen_name}_Regen_{self.generation_count}.mid"
-            out_path = os.path.join(self.save_directory, out_fname)
 
-            # Write MIDI file with ALL currently generated parts
-            # Get include status from checkboxes
-            include_arp = self.include_arp_check.isChecked()
-            include_melody = self.include_melody_check.isChecked()
-            include_bass = self.include_bass_check.isChecked()
-            self._execute_write_midi_file(
-                out_path, include_arp, include_melody, include_bass,
-                melody_style_sel, melody_speed_sel, bpm, embed_t
-            )
-            # Removed _execute_write_single_part_midi call
-
-            # --- Update Piano Roll ---
+            # --- Update Piano Roll with current full state ---
             if hasattr(self, 'piano_roll_widget'):
                 total_beats = self.last_generated_num_bars * 4.0
+                # Get current checkbox state for display
+                include_arp_disp = self.include_arp_check.isChecked()
+                include_melody_disp = self.include_melody_check.isChecked()
+                include_bass_disp = self.include_bass_check.isChecked()
                 self.piano_roll_widget.set_data(
-                    self.generated_chords_progression if include_arp or include_melody or include_bass else [],
-                    self.generated_arp_midi_data if include_arp else [],
-                    self.generated_bass_midi_data if include_bass else [],
-                    self.generated_melody_midi_data if include_melody else [],
+                    self.generated_chords_progression if include_arp_disp or include_melody_disp or include_bass_disp else [],
+                    self.generated_arp_midi_data if include_arp_disp else [],
+                    self.generated_bass_midi_data if include_bass_disp else [],
+                    self.generated_melody_midi_data if include_melody_disp else [],
                     total_beats
                 )
 
-            # Update Status
-            try: # Display relative path
-                 home = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.HomeLocation) or os.path.expanduser("~")
-                 disp_fldr = os.path.relpath(self.save_directory, home)
-                 if not disp_fldr.startswith(".."): disp_fldr = f"~{os.sep}{disp_fldr}"
-                 else: disp_fldr = f"...{os.sep}{os.path.basename(self.save_directory)}"
-            except Exception: disp_fldr = self.save_directory
-            self.update_status(f"Success! Saved:\n{out_fname}\nto {disp_fldr}"); self.update_drag_label(out_path)
+            # --- Update Status and Drag Label (point to the SINGLE part file if created) ---
+            if single_part_out_path:
+                try: # Display relative path
+                     home = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.HomeLocation) or os.path.expanduser("~")
+                     disp_fldr = os.path.relpath(self.save_directory, home)
+                     if not disp_fldr.startswith(".."): disp_fldr = f"~{os.sep}{disp_fldr}"
+                     else: disp_fldr = f"...{os.sep}{os.path.basename(self.save_directory)}"
+                except Exception: disp_fldr = self.save_directory
+                out_fname_display = os.path.basename(single_part_out_path)
+                self.update_status(f"Success! Regenerated {regen_name}. Drag file:\n{out_fname_display}\n(Saved to {disp_fldr})")
+                self.update_drag_label(single_part_out_path) # <-- Point drag label to single part file
+            else:
+                # Handle case where regeneration failed or produced no notes
+                self.update_status(f"{regen_name} regenerated, but no notes produced or save failed.")
+                self.update_drag_label(None)
+
 
             # --- MODIFIED: Chord Display Update on Regen ---
             if hasattr(self, 'chord_display_label') and self.generated_chords_progression:
@@ -3398,7 +3425,6 @@ class ChorgiWindow(QWidget):
 
     def _execute_write_single_part_midi(self, output_path, track_name, part_data, part_type, volume, bpm_value, embed_tempo):
         """Internal method to write a MIDI file containing only one part."""
-        # (Function remains unchanged - Note: This might not be needed if Regen saves the full MIDI)
         MyMIDI = MIDIFile(numTracks=1, removeDuplicates=False, deinterleave=False)
         chan = 0; start_time = 0
         MyMIDI.addTrackName(0, start_time, track_name)
@@ -3425,8 +3451,10 @@ class ChorgiWindow(QWidget):
         try:
             with open(output_path, "wb") as out_f: MyMIDI.writeFile(out_f)
             # print(f"Success: Wrote single part MIDI: {output_path}");
-            return os.path.basename(output_path)
+            # Return the full path for the drag label
+            return output_path
         except Exception as e: raise RuntimeError(f"Failed write single part MIDI for {part_type}: {e}") from e
+
 
     def run_randomize_all_options(self):
         """Randomly selects values for all GUI options."""

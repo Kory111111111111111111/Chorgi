@@ -1,4 +1,4 @@
-Chorgi
+##Chorgi
 
 Chorgi is a non-AI MIDI generator developed to emulate generic playing styles, providing users with a straightforward and creative music composition tool.
 

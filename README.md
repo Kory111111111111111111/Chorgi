@@ -7,4 +7,7 @@ This project is developed independently and without the extensive financial reso
 
 Current Limitations
 Platform: Currently available only for Windows.
-Integration: Runs as a standalone application and is not yet compatible with DAWs (Digital Audio Workstations). Since Chorgi is fully coded in Python, wrapping it into a VST format presents unique challenges, which are being actively explored for future updates.
+
+Integration: Runs as a standalone application and is not yet compatible with DAWs (Digital Audio Workstations). Since Chorgi is fully coded in 
+
+Python, wrapping it into a VST format presents unique challenges, which are being actively explored for future updates.

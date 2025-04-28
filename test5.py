@@ -1232,20 +1232,32 @@ class DragMidiLabel(QLabel):
         # Set initial text (stylesheet handles boldness/styling)
         self.setText("(Generate MIDI first)")
         self.setObjectName("DragMidiLabel") # Keep ID for styling
+        # Store original tooltip
+        self.setProperty("originalToolTip", "Click and drag the saved MIDI file from here")
 
     def set_midi_path(self, file_path):
         """ Sets the path of the MIDI file that can be dragged. """
         self.midi_file_path = file_path
         if file_path and os.path.exists(file_path):
             filename = os.path.basename(file_path)
-            # Keep filename display normal, tooltip can be detailed
             self.setText(f"Drag: {filename}")
-            self.setToolTip(f"Drag {filename} to your DAW") # Tooltip updated here
+            new_tooltip = f"Drag {filename} to your DAW"
+            self.setProperty("originalToolTip", new_tooltip) # Update stored tooltip
+            # Update visible tooltip based on global setting
+            if self.window() and hasattr(self.window(), 'show_tooltips') and self.window().show_tooltips:
+                self.setToolTip(new_tooltip)
+            else:
+                self.setToolTip("")
         else:
             self.midi_file_path = None
-            # Reset text (stylesheet handles boldness/styling)
             self.setText("(Generate MIDI first)")
-            self.setToolTip("Click and drag the saved MIDI file from here") # Tooltip reset here
+            new_tooltip = "Click and drag the saved MIDI file from here"
+            self.setProperty("originalToolTip", new_tooltip) # Reset stored tooltip
+            # Update visible tooltip based on global setting
+            if self.window() and hasattr(self.window(), 'show_tooltips') and self.window().show_tooltips:
+                 self.setToolTip(new_tooltip)
+            else:
+                self.setToolTip("")
 
     def mousePressEvent(self, event):
         """ Stores the starting position of the mouse press. """
@@ -1292,12 +1304,17 @@ class PianoRollWidget(QWidget):
         # Grid colors are now set in paintEvent based on theme
 
         # --- ADDED TOOLTIP ---
-        self.setToolTip("Color Legend:\n"
+        tooltip_text = ("Color Legend:\n"
                         "- Blue: Chords\n"
                         "- Red: Bassline\n"
                         "- Green: Arpeggio\n"
                         "- Orange: Melody")
-        # --- END ADDED TOOLTIP ---
+        self.setProperty("originalToolTip", tooltip_text) # Store it
+        # Set initial visibility based on parent window's state (if available)
+        if parent and hasattr(parent, 'show_tooltips') and parent.show_tooltips:
+            self.setToolTip(tooltip_text)
+        else:
+            self.setToolTip("") # Initially hidden if parent says so or no parent context yet
 
     def set_data(self, chords, arp, bass, melody, total_beats):
         self.chords_data = chords if chords else []
@@ -1401,6 +1418,7 @@ class ChorgiWindow(QWidget):
     def __init__(self):
         super().__init__()
         # --- Instance variables ---
+        self.show_tooltips = True # <-- Added state for tooltip visibility
         self.generated_chords_progression = []
         self.generated_arp_midi_data = []
         self.generated_bass_midi_data = []
@@ -1502,22 +1520,21 @@ class ChorgiWindow(QWidget):
         self.light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, DISABLED_BG_L)
 
 
-        # --- Dark (Nord) Stylesheet --- (Added bold for #ChordDisplayLabel, #DragMidiLabel, made Drag Label smaller)
-        # --- FIX: Commented out QToolTip styling ---
+        # --- Dark (Nord) Stylesheet ---
+        # --- FIX: Reinstated MINIMAL QToolTip styling with rounded corners ---
         self.dark_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
                 color: #ECEFF4; /* FG_COLOR_D */
                 background-color: #2E3440; /* BG_COLOR_D */
             }}
-            /* QToolTip {{ */ /* Explicit tooltip styling - COMMENTED OUT */
-                /* color: #ECEFF4; */ /* TOOLTIP_FG_D */
-                /* background-color: #4C566A; */ /* TOOLTIP_BG_D */
-                /* border: 1px solid #5E81AC; */
-                /* padding: 3px; */
-                /* border-radius: 3px; */
-                /* opacity: 230; */ /* Slightly transparent */
-            /* }} */
+            QToolTip {{
+                color: #ECEFF4; /* TOOLTIP_FG_D */
+                background-color: #4C566A; /* TOOLTIP_BG_D */
+                border: 1px solid #434C5E; /* Simple border matching theme */
+                padding: 4px; /* Slightly more padding */
+                border-radius: 4px; /* Rounded corners */
+            }}
             QGroupBox {{
                 background-color: #3B4252; /* BASE_COLOR_D */
                 border: 1px solid #434C5E; /* BORDER_COLOR_D */
@@ -1663,22 +1680,21 @@ class ChorgiWindow(QWidget):
             }}
         """
 
-        # --- Light (Grey) Stylesheet --- (Added bold, modified RadioButton indicator, made Drag Label smaller)
-        # --- FIX: Commented out QToolTip styling ---
+        # --- Light (Grey) Stylesheet ---
+        # --- FIX: Reinstated MINIMAL QToolTip styling with rounded corners ---
         self.light_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
                 color: #2E3440; /* FG_COLOR_L - Dark Text */
                 background-color: #DCDCDC; /* BG_COLOR_L - Grey BG */
             }}
-            /* QToolTip {{ */ /* Explicit tooltip styling - COMMENTED OUT */
-                /* color: #000000; */ /* TOOLTIP_FG_L */
-                /* background-color: #FFFFE1; */ /* TOOLTIP_BG_L */
-                /* border: 1px solid #B0B0B0; */ /* BORDER_COLOR_L */
-                /* padding: 3px; */
-                /* border-radius: 3px; */
-                /* opacity: 230; */
-            /* }} */
+            QToolTip {{
+                color: #000000; /* TOOLTIP_FG_L */
+                background-color: #FFFFE1; /* TOOLTIP_BG_L */
+                border: 1px solid #B0B0B0; /* Simple border */
+                padding: 4px; /* Slightly more padding */
+                border-radius: 4px; /* Rounded corners */
+            }}
             QGroupBox {{
                 background-color: #F0F0F0; /* BASE_COLOR_L - Lighter BG for contrast */
                 border: 1px solid #B0B0B0; /* BORDER_COLOR_L */
@@ -1856,24 +1872,33 @@ class ChorgiWindow(QWidget):
         # --- Fonts --- (Simplified, rely more on stylesheet)
         self.button_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         self.status_font = QFont("Segoe UI", 11)
-        # self.drag_label_font = QFont("Segoe UI", 9, QFont.Weight.Normal) # Now bold via stylesheet
         self.footer_font = QFont("Segoe UI", 10, QFont.Weight.Normal)
         self.tempo_label_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
-        # self.chord_display_font = QFont("Consolas", 9, QFont.Weight.Normal) # Now bold via stylesheet
         self.group_box_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
+        self.tooltip_toggle_font = QFont("Segoe UI", 9) # Font for tooltip toggle
 
         self.setWindowTitle("Chorgi")
-        # --- Icon is now set in the main execution block using resource_path ---
-        # default_icon = QIcon(":/qt-project.org/styles/commonstyle/images/standardbutton-open-32.png")
-        # self.setWindowIcon(QIcon.fromTheme("audio-midi", default_icon))
         self.resize(750, 850) # Adjusted size for piano roll
-
         self.setAutoFillBackground(True)
 
         # --- Main Layout (Vertical) ---
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(15, 15, 15, 15)
-        self.main_layout.setSpacing(10) # Reduced spacing slightly
+        self.main_layout.setSpacing(10)
+
+        # --- Tooltip Toggle Layout (Top Right) ---
+        tooltip_layout = QHBoxLayout()
+        tooltip_layout.addStretch(1) # Push checkbox to the right
+        self.tooltip_checkbox = QCheckBox("Show Tooltips")
+        self.tooltip_checkbox.setFont(self.tooltip_toggle_font)
+        self.tooltip_checkbox.setChecked(self.show_tooltips)
+        tooltip_text = "Enable or disable all informational tooltips"
+        self.tooltip_checkbox.setProperty("originalToolTip", tooltip_text) # Store original
+        self.tooltip_checkbox.setToolTip(tooltip_text if self.show_tooltips else "") # Set initial
+        self.tooltip_checkbox.stateChanged.connect(self._toggle_tooltips_slot)
+        tooltip_layout.addWidget(self.tooltip_checkbox)
+        self.main_layout.addLayout(tooltip_layout) # Add to main layout *first*
+        self.main_layout.addSpacing(5) # Add a little space
 
         # --- Horizontal Layout for the two main columns of controls ---
         self.columns_layout = QHBoxLayout()
@@ -1971,9 +1996,14 @@ class ChorgiWindow(QWidget):
         self.create_bottom_layout()
 
         self._update_ui_for_style(self.style_combo.currentText())
+        self._update_all_tooltips(self.show_tooltips) # Set initial tooltip state for all widgets
 
 
     # --- GUI Section Creation Methods (Return Layouts/Widgets) ---
+    # --- Helper to set tooltip and store original ---
+    def _set_widget_tooltip(self, widget, text):
+        widget.setProperty("originalToolTip", text)
+        widget.setToolTip(text if self.show_tooltips else "")
 
     def create_style_key_controls(self):
         h_layout = QHBoxLayout(); h_layout.setSpacing(10)
@@ -1981,7 +2011,7 @@ class ChorgiWindow(QWidget):
         self.style_combo = QComboBox();
         self.style_combo.addItems(STYLE_OPTIONS); self.style_combo.setCurrentIndex(0)
         self.style_combo.setMinimumWidth(90)
-        self.style_combo.setToolTip("Select the style defining the available chord pool (Chorgi/Jazzy)") # Tooltip
+        self._set_widget_tooltip(self.style_combo, "Select the style defining the available chord pool (Chorgi/Jazzy)") # Tooltip
         self.style_combo.currentTextChanged.connect(self._update_ui_for_style)
         h_layout.addWidget(style_label); h_layout.addWidget(self.style_combo)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
@@ -1989,9 +2019,9 @@ class ChorgiWindow(QWidget):
         key_type_label = QLabel("Key Type:");
         self.key_type_group = QButtonGroup(self)
         self.major_radio = QRadioButton("Maj");
-        self.major_radio.setToolTip("Use a major key tonality") # Tooltip
+        self._set_widget_tooltip(self.major_radio, "Use a major key tonality") # Tooltip
         self.minor_radio = QRadioButton("Min");
-        self.minor_radio.setToolTip("Use a minor key tonality") # Tooltip
+        self._set_widget_tooltip(self.minor_radio, "Use a minor key tonality") # Tooltip
         self.major_radio.setChecked(True);
         self.key_type_group.addButton(self.major_radio)
         self.key_type_group.addButton(self.minor_radio)
@@ -2008,7 +2038,7 @@ class ChorgiWindow(QWidget):
         default_root_index = NOTE_NAMES.index("C") if "C" in NOTE_NAMES else 0
         self.key_root_combo.setCurrentIndex(default_root_index)
         self.key_root_combo.setMinimumWidth(60)
-        self.key_root_combo.setToolTip("Select the root note of the key") # Tooltip
+        self._set_widget_tooltip(self.key_root_combo, "Select the root note of the key") # Tooltip
         h_layout.addWidget(key_root_label); h_layout.addWidget(self.key_root_combo)
         h_layout.addStretch(1)
         return h_layout
@@ -2021,7 +2051,7 @@ class ChorgiWindow(QWidget):
         try: default_bars_index = NUM_BARS_OPTIONS.index("12 Bars")
         except ValueError: default_bars_index = 2
         self.num_bars_combo.setCurrentIndex(default_bars_index); self.num_bars_combo.setMinimumWidth(90)
-        self.num_bars_combo.setToolTip("Select the total length of the progression") # Tooltip
+        self._set_widget_tooltip(self.num_bars_combo, "Select the total length of the progression") # Tooltip
         self.num_bars_combo.currentTextChanged.connect(self._update_ui_for_style)
         layout.addWidget(num_bars_label); layout.addWidget(self.num_bars_combo)
         layout.addSpacerItem(QSpacerItem(10, 0))
@@ -2030,7 +2060,7 @@ class ChorgiWindow(QWidget):
         self.complexity_combo = QComboBox();
         self.complexity_combo.addItems(CHORD_COMPLEXITY_OPTIONS); self.complexity_combo.setCurrentIndex(0)
         self.complexity_combo.setMinimumWidth(210)
-        self.complexity_combo.setToolTip("Select chord complexity (affects available pool)") # Tooltip
+        self._set_widget_tooltip(self.complexity_combo, "Select chord complexity (affects available pool)") # Tooltip
         layout.addWidget(self.complexity_label); layout.addWidget(self.complexity_combo)
 
         layout.addSpacerItem(QSpacerItem(10, 0))
@@ -2039,10 +2069,11 @@ class ChorgiWindow(QWidget):
         tempo_label = QLabel("BPM:"); tempo_label.setFont(self.tempo_label_font)
         self.bpm_spinbox = QSpinBox();
         self.bpm_spinbox.setRange(40, 300); self.bpm_spinbox.setValue(90)
-        self.bpm_spinbox.setFixedWidth(65); self.bpm_spinbox.setToolTip("Set the Beats Per Minute") # Tooltip
+        self.bpm_spinbox.setFixedWidth(65);
+        self._set_widget_tooltip(self.bpm_spinbox, "Set the Beats Per Minute") # Tooltip
         self.embed_tempo_check = QCheckBox("Embed");
         self.embed_tempo_check.setObjectName("EmbedTempoCheck"); self.embed_tempo_check.setChecked(True)
-        self.embed_tempo_check.setToolTip("Include the BPM information in the MIDI file.") # Tooltip
+        self._set_widget_tooltip(self.embed_tempo_check, "Include the BPM information in the MIDI file.") # Tooltip
         tempo_layout.addWidget(tempo_label); tempo_layout.addWidget(self.bpm_spinbox)
         tempo_layout.addWidget(self.embed_tempo_check)
         tempo_layout.addStretch(0)
@@ -2060,7 +2091,7 @@ class ChorgiWindow(QWidget):
         self.prog_style_combo = QComboBox();
         self.prog_style_combo.addItems(PROG_STYLE_OPTIONS); self.prog_style_combo.setCurrentIndex(0)
         self.prog_style_combo.setMinimumWidth(160)
-        self.prog_style_combo.setToolTip("Select the harmonic structure/template for the progression") # Tooltip
+        self._set_widget_tooltip(self.prog_style_combo, "Select the harmonic structure/template for the progression") # Tooltip
         self.prog_style_combo.currentTextChanged.connect(self._update_ui_for_style)
         row1_layout.addWidget(prog_style_label); row1_layout.addWidget(self.prog_style_combo)
         row1_layout.addSpacerItem(QSpacerItem(15, 0))
@@ -2069,7 +2100,7 @@ class ChorgiWindow(QWidget):
         self.chord_rate_combo = QComboBox();
         self.chord_rate_combo.addItems(CHORD_RATE_OPTIONS); self.chord_rate_combo.setCurrentIndex(0)
         self.chord_rate_combo.setMinimumWidth(90)
-        self.chord_rate_combo.setToolTip("Select how many chords typically occur per bar") # Tooltip
+        self._set_widget_tooltip(self.chord_rate_combo, "Select how many chords typically occur per bar") # Tooltip
         row1_layout.addWidget(self.chord_rate_label); row1_layout.addWidget(self.chord_rate_combo)
         row1_layout.addStretch(1)
         v_layout.addLayout(row1_layout)
@@ -2079,7 +2110,7 @@ class ChorgiWindow(QWidget):
         self.voicing_style_combo = QComboBox();
         self.voicing_style_combo.addItems(VOICING_STYLE_OPTIONS); self.voicing_style_combo.setCurrentIndex(1)
         self.voicing_style_combo.setMinimumWidth(160)
-        self.voicing_style_combo.setToolTip("Select how chords are voiced (root, inversions, specific types)") # Tooltip
+        self._set_widget_tooltip(self.voicing_style_combo, "Select how chords are voiced (root, inversions, specific types)") # Tooltip
         row2_layout.addWidget(self.voicing_label); row2_layout.addWidget(self.voicing_style_combo)
         row2_layout.addSpacerItem(QSpacerItem(15, 0))
 
@@ -2087,7 +2118,7 @@ class ChorgiWindow(QWidget):
         self.cadence_combo = QComboBox();
         self.cadence_combo.addItems(CADENCE_OPTIONS); self.cadence_combo.setCurrentIndex(0)
         self.cadence_combo.setMinimumWidth(130)
-        self.cadence_combo.setToolTip("Select the desired harmonic ending for the progression") # Tooltip
+        self._set_widget_tooltip(self.cadence_combo, "Select the desired harmonic ending for the progression") # Tooltip
         row2_layout.addWidget(self.cadence_label); row2_layout.addWidget(self.cadence_combo)
         row2_layout.addStretch(1)
         v_layout.addLayout(row2_layout)
@@ -2100,7 +2131,7 @@ class ChorgiWindow(QWidget):
         self.chord_bias_combo = QComboBox();
         self.chord_bias_combo.addItems(CHORD_BIAS_OPTIONS); self.chord_bias_combo.setCurrentIndex(0)
         self.chord_bias_combo.setMinimumWidth(100)
-        # Tooltip set dynamically
+        self._set_widget_tooltip(self.chord_bias_combo, "Favor darker (minor/dim) or lighter (major) chords (subtle effect)") # Tooltip
         layout.addWidget(self.chord_bias_label); layout.addWidget(self.chord_bias_combo)
         layout.addStretch(1)
         return layout
@@ -2111,14 +2142,14 @@ class ChorgiWindow(QWidget):
          self.arp_style_combo = QComboBox();
          self.arp_style_combo.addItems(ARP_STYLE_OPTIONS); self.arp_style_combo.setCurrentIndex(0)
          self.arp_style_combo.setMinimumWidth(170)
-         self.arp_style_combo.setToolTip("Select the note order pattern for the arpeggiator") # Tooltip
+         self._set_widget_tooltip(self.arp_style_combo, "Select the note order pattern for the arpeggiator") # Tooltip
          layout.addWidget(arp_style_label); layout.addWidget(self.arp_style_combo)
          layout.addSpacerItem(QSpacerItem(15, 0))
          arp_octave_label = QLabel("Arp Octave:");
          self.arp_octave_combo = QComboBox();
          self.arp_octave_combo.addItems(ARP_OCTAVE_OPTIONS); self.arp_octave_combo.setCurrentIndex(0)
          self.arp_octave_combo.setMinimumWidth(100)
-         self.arp_octave_combo.setToolTip("Select the octave range for the arpeggiator notes relative to the chord") # Tooltip
+         self._set_widget_tooltip(self.arp_octave_combo, "Select the octave range for the arpeggiator notes relative to the chord") # Tooltip
          layout.addWidget(arp_octave_label); layout.addWidget(self.arp_octave_combo)
          layout.addStretch(1)
          return layout
@@ -2133,7 +2164,7 @@ class ChorgiWindow(QWidget):
         self.melody_gen_style_combo = QComboBox();
         self.melody_gen_style_combo.addItems(MELODY_GEN_STYLE_OPTIONS); self.melody_gen_style_combo.setCurrentIndex(0)
         self.melody_gen_style_combo.setMinimumWidth(150)
-        self.melody_gen_style_combo.setToolTip("Choose the algorithm used for generating melody notes") # Tooltip
+        self._set_widget_tooltip(self.melody_gen_style_combo, "Choose the algorithm used for generating melody notes") # Tooltip
         row1_layout.addWidget(melody_gen_style_label); row1_layout.addWidget(self.melody_gen_style_combo)
         row1_layout.addSpacerItem(QSpacerItem(15, 0))
 
@@ -2141,7 +2172,7 @@ class ChorgiWindow(QWidget):
         self.melody_instrument_combo = QComboBox(); # NEW
         self.melody_instrument_combo.addItems(MELODY_INSTRUMENT_OPTIONS); self.melody_instrument_combo.setCurrentIndex(0) # Default None
         self.melody_instrument_combo.setMinimumWidth(100)
-        self.melody_instrument_combo.setToolTip("Select target instrument type (subtly influences generation)") # Tooltip
+        self._set_widget_tooltip(self.melody_instrument_combo, "Select target instrument type (subtly influences generation)") # Tooltip
         row1_layout.addWidget(melody_instr_label); row1_layout.addWidget(self.melody_instrument_combo)
         row1_layout.addStretch(1)
         container_layout.addLayout(row1_layout)
@@ -2152,7 +2183,7 @@ class ChorgiWindow(QWidget):
         self.melody_octave_combo = QComboBox();
         self.melody_octave_combo.addItems(MELODY_OCTAVE_OPTIONS); self.melody_octave_combo.setCurrentIndex(0)
         self.melody_octave_combo.setMinimumWidth(70)
-        self.melody_octave_combo.setToolTip("Select the target octave range for the melody") # Tooltip
+        self._set_widget_tooltip(self.melody_octave_combo, "Select the target octave range for the melody") # Tooltip
         row2_layout.addWidget(melody_octave_label); row2_layout.addWidget(self.melody_octave_combo)
         row2_layout.addSpacerItem(QSpacerItem(10, 0)) # Smaller spacer
 
@@ -2160,7 +2191,7 @@ class ChorgiWindow(QWidget):
         self.melody_style_combo = QComboBox();
         self.melody_style_combo.addItems(MELODY_STYLE_OPTIONS); self.melody_style_combo.setCurrentIndex(0)
         self.melody_style_combo.setMinimumWidth(100)
-        self.melody_style_combo.setToolTip("Select melody note articulation (Legato: connected, Staccato: short/detached)") # Tooltip
+        self._set_widget_tooltip(self.melody_style_combo, "Select melody note articulation (Legato: connected, Staccato: short/detached)") # Tooltip
         row2_layout.addWidget(melody_style_label); row2_layout.addWidget(self.melody_style_combo)
         row2_layout.addSpacerItem(QSpacerItem(10, 0)) # Smaller spacer
 
@@ -2168,7 +2199,7 @@ class ChorgiWindow(QWidget):
         self.melody_speed_combo = QComboBox();
         self.melody_speed_combo.addItems(MELODY_SPEED_OPTIONS); self.melody_speed_combo.setCurrentIndex(1)
         self.melody_speed_combo.setMinimumWidth(90)
-        self.melody_speed_combo.setToolTip("Control the rhythmic density and speed of the melody") # Tooltip
+        self._set_widget_tooltip(self.melody_speed_combo, "Control the rhythmic density and speed of the melody") # Tooltip
         row2_layout.addWidget(melody_speed_label); row2_layout.addWidget(self.melody_speed_combo)
         row2_layout.addStretch(1)
         container_layout.addLayout(row2_layout)
@@ -2184,7 +2215,7 @@ class ChorgiWindow(QWidget):
         self.bass_style_combo.addItems(BASS_STYLE_OPTIONS)
         self.bass_style_combo.setCurrentIndex(0) # Default Standard
         self.bass_style_combo.setMinimumWidth(150)
-        self.bass_style_combo.setToolTip("Select the style for the bassline generation")
+        self._set_widget_tooltip(self.bass_style_combo, "Select the style for the bassline generation")
         layout.addWidget(bass_style_label)
         layout.addWidget(self.bass_style_combo)
         layout.addStretch(1)
@@ -2196,15 +2227,15 @@ class ChorgiWindow(QWidget):
         layout.addStretch(1)
         self.include_arp_check = QCheckBox("Arpeggio");
         self.include_arp_check.setChecked(self.include_arp)
-        self.include_arp_check.setToolTip("Include the generated arpeggio track in the MIDI output") # Tooltip
+        self._set_widget_tooltip(self.include_arp_check, "Include the generated arpeggio track in the MIDI output") # Tooltip
         layout.addWidget(self.include_arp_check)
         self.include_melody_check = QCheckBox("Melody");
         self.include_melody_check.setChecked(self.include_melody)
-        self.include_melody_check.setToolTip("Include the generated melody track in the MIDI output") # Tooltip
+        self._set_widget_tooltip(self.include_melody_check, "Include the generated melody track in the MIDI output") # Tooltip
         layout.addWidget(self.include_melody_check)
         self.include_bass_check = QCheckBox("Bassline");
         self.include_bass_check.setChecked(self.include_bass)
-        self.include_bass_check.setToolTip("Include the generated bassline track in the MIDI output") # Tooltip
+        self._set_widget_tooltip(self.include_bass_check, "Include the generated bassline track in the MIDI output") # Tooltip
         layout.addWidget(self.include_bass_check)
         layout.addStretch(1)
         return layout
@@ -2214,7 +2245,7 @@ class ChorgiWindow(QWidget):
         self.chord_display_label.setObjectName("ChordDisplayLabel") # Stylesheet handles font/bold
         self.chord_display_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.chord_display_label.setWordWrap(True)
-        self.chord_display_label.setToolTip("Shows the generated chord names (without inversions/voicings)") # Tooltip
+        self._set_widget_tooltip(self.chord_display_label, "Shows the generated chord names (without inversions/voicings)") # Tooltip
         self.main_layout.addWidget(self.chord_display_label)
 
     def create_status_label(self):
@@ -2222,19 +2253,18 @@ class ChorgiWindow(QWidget):
         self.status_label.setFont(self.status_font) # Use status font
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setWordWrap(True);
-        self.status_label.setToolTip("Displays the current status or result of the generation") # Tooltip
+        self._set_widget_tooltip(self.status_label, "Displays the current status or result of the generation") # Tooltip
         self.main_layout.addWidget(self.status_label)
 
     # --- NEW: Piano Roll Widget Creation ---
     def create_piano_roll_widget(self):
-        self.piano_roll_widget = PianoRollWidget(self)
-        # --- Tooltip is now set within PianoRollWidget __init__ ---
+        self.piano_roll_widget = PianoRollWidget(self) # Pass self as parent
+        # Tooltip is set within PianoRollWidget __init__, using parent state
         self.main_layout.addWidget(self.piano_roll_widget)
 
     def create_drag_drop_area(self):
         self.drag_midi_label = DragMidiLabel(self)
-        self.drag_midi_label.setObjectName("DragMidiLabel") # Stylesheet handles font/bold
-        # Tooltip is set within DragMidiLabel class
+        # Tooltip is set/updated within DragMidiLabel class methods using setProperty
         self.main_layout.addWidget(self.drag_midi_label)
 
     def create_generate_button(self):
@@ -2242,7 +2272,7 @@ class ChorgiWindow(QWidget):
         self.generate_button = QPushButton("Generate MIDI")
         self.generate_button.setObjectName("GenerateButton"); self.generate_button.setFont(self.button_font)
         self.generate_button.setMinimumWidth(150)
-        self.generate_button.setToolTip("Generate a new MIDI file with the current settings") # Tooltip
+        self._set_widget_tooltip(self.generate_button, "Generate a new MIDI file with the current settings") # Tooltip
         self.generate_button.clicked.connect(self.run_generate_midi_sequence)
         layout.addWidget(self.generate_button); layout.addStretch(1)
         self.main_layout.addLayout(layout)
@@ -2252,11 +2282,11 @@ class ChorgiWindow(QWidget):
         regen_label = QLabel("Regen Part:");
         self.regenerate_part_combo = QComboBox();
         self.regenerate_part_combo.addItems(REGENERATE_PART_OPTIONS); self.regenerate_part_combo.setMinimumWidth(90)
-        self.regenerate_part_combo.setToolTip("Select which part to regenerate using the current settings") # Tooltip
+        self._set_widget_tooltip(self.regenerate_part_combo, "Select which part to regenerate using the current settings") # Tooltip
         self.regenerate_button = QPushButton("Regenerate Part")
         self.regenerate_button.setObjectName("RegenerateButton"); self.regenerate_button.setFont(self.button_font)
         self.regenerate_button.setEnabled(False)
-        self.regenerate_button.setToolTip("Regenerate only the selected part (Arp, Melody, or Bass)") # Tooltip
+        self._set_widget_tooltip(self.regenerate_button, "Regenerate only the selected part (Arp, Melody, or Bass)") # Tooltip
         self.regenerate_button.clicked.connect(self.run_regenerate_selected_parts)
         layout.addWidget(regen_label); layout.addWidget(self.regenerate_part_combo)
         layout.addSpacerItem(QSpacerItem(5, 0)); layout.addWidget(self.regenerate_button)
@@ -2269,7 +2299,7 @@ class ChorgiWindow(QWidget):
         left_v_layout = QVBoxLayout(); left_v_layout.setSpacing(2)
         self.support_button = QPushButton("Support"); self.support_button.setObjectName("SupportButton")
         app_version = QCoreApplication.applicationVersion()
-        self.support_button.setToolTip(f"Get support information (Version {app_version})") # Tooltip
+        self._set_widget_tooltip(self.support_button, f"Get support information (Version {app_version})") # Tooltip
         self.support_button.clicked.connect(self._show_support_info)
         left_v_layout.addWidget(self.support_button, alignment=Qt.AlignmentFlag.AlignLeft)
         self.branding_label = QLabel("Chorgi by Blackfin Audio"); self.branding_label.setFont(self.footer_font) # Explicit normal
@@ -2284,12 +2314,13 @@ class ChorgiWindow(QWidget):
         self.theme_combo = QComboBox();
         self.theme_combo.addItems(THEME_OPTIONS); self.theme_combo.setCurrentIndex(0) # Default Dark
         self.theme_combo.setMinimumWidth(110)
-        self.theme_combo.setToolTip("Switch between Dark and Light UI themes") # Tooltip
+        self._set_widget_tooltip(self.theme_combo, "Switch between Dark and Light UI themes") # Tooltip
         self.theme_combo.currentTextChanged.connect(self._apply_theme)
         right_h_layout.addWidget(theme_label); right_h_layout.addWidget(self.theme_combo)
         right_h_layout.addSpacerItem(QSpacerItem(15, 0))
         self.randomize_button = QPushButton("🎲"); self.randomize_button.setObjectName("RandomizeButton")
-        self.randomize_button.setFixedSize(50, 35); self.randomize_button.setToolTip("Randomize all options") # Tooltip
+        self.randomize_button.setFixedSize(50, 35);
+        self._set_widget_tooltip(self.randomize_button, "Randomize all options") # Tooltip
         self.randomize_button.clicked.connect(self.run_randomize_all_options)
         right_h_layout.addWidget(self.randomize_button)
         bottom_h_layout.addLayout(right_h_layout)
@@ -2297,6 +2328,18 @@ class ChorgiWindow(QWidget):
 
 
     # --- Signal Handlers for UI Interaction ---
+
+    def _toggle_tooltips_slot(self, state):
+        """Slot to handle the state change of the tooltip checkbox."""
+        self.show_tooltips = (state == Qt.CheckState.Checked.value)
+        self._update_all_tooltips(self.show_tooltips)
+
+    def _update_all_tooltips(self, enabled):
+        """Iterates through widgets and enables/disables tooltips based on stored text."""
+        for widget in self.findChildren(QWidget):
+            original_tooltip = widget.property("originalToolTip")
+            if original_tooltip is not None: # Check if the property was set
+                widget.setToolTip(original_tooltip if enabled else "")
 
     def _apply_theme(self, theme_name):
         """Applies the selected theme (palette and stylesheet)."""
@@ -2307,18 +2350,26 @@ class ChorgiWindow(QWidget):
             selected_palette = self.dark_palette
             selected_stylesheet = self.dark_stylesheet
 
+        # Update tooltip display on theme change before applying stylesheet
+        self._update_all_tooltips(self.show_tooltips)
+
         current_drag_text = self.drag_midi_label.text()
         if "Generate MIDI first" in current_drag_text:
              self.drag_midi_label.setText("(Generate MIDI first)")
+             # Reset tooltip for drag label specifically
+             self._set_widget_tooltip(self.drag_midi_label, "Click and drag the saved MIDI file from here")
+
 
         self.setPalette(selected_palette)
         if QApplication.instance(): # Ensure app exists
-            QApplication.instance().setPalette(selected_palette)
+            QApplication.instance().setPalette(selected_palette) # Apply palette to whole app for consistency
         self.setStyleSheet(selected_stylesheet) # Apply the stylesheet
         # Force update/repaint of widgets that might rely on stylesheet changes
         self.update()
         for widget in self.findChildren(QWidget):
             widget.update()
+        # Re-apply tooltip state after stylesheet potentially overrides something
+        self._update_all_tooltips(self.show_tooltips)
 
 
     def _set_control_enabled(self, control, label_widget, enabled, tooltip_enabled="", reason_disabled=""):
@@ -2327,14 +2378,18 @@ class ChorgiWindow(QWidget):
         if label_widget:
             label_widget.setEnabled(enabled) # Ensure label visibility matches control
 
-        if enabled:
-            control.setToolTip(tooltip_enabled)
-            if label_widget:
-                label_widget.setToolTip(tooltip_enabled) # Mirror tooltip on label when enabled
-        else:
-            control.setToolTip(reason_disabled)
-            if label_widget:
-                 label_widget.setToolTip(reason_disabled) # Mirror tooltip on label when disabled
+        # Determine the correct tooltip text based on enabled state
+        tooltip_text = tooltip_enabled if enabled else reason_disabled
+
+        # Store the appropriate original tooltip text
+        control.setProperty("originalToolTip", tooltip_text)
+        if label_widget:
+            label_widget.setProperty("originalToolTip", tooltip_text)
+
+        # Set the current tooltip based on the global toggle
+        control.setToolTip(tooltip_text if self.show_tooltips else "")
+        if label_widget:
+            label_widget.setToolTip(tooltip_text if self.show_tooltips else "")
 
 
     def _update_ui_for_style(self, changed_text):
@@ -2369,7 +2424,7 @@ class ChorgiWindow(QWidget):
             if is_blues_prog and self.complexity_combo.count() > 0:
                 self.complexity_combo.setCurrentIndex(0) # Reset to standard
 
-        # Chord Bias (Always Enabled)
+        # Chord Bias (Always Enabled - Update tooltip only)
         if hasattr(self, 'chord_bias_combo') and hasattr(self, 'chord_bias_label'):
             self._set_control_enabled(
                 self.chord_bias_combo, self.chord_bias_label,
@@ -2377,36 +2432,38 @@ class ChorgiWindow(QWidget):
             )
 
         # Number of Bars (Disabled for Blues)
-        # Find the label associated with num_bars_combo (assuming it exists in create_structure_controls layout)
         num_bars_label_widget = None
         if hasattr(self, 'num_bars_combo'):
-            # This is a bit indirect, relies on layout structure
-            parent_widget = self.num_bars_combo.parentWidget()
-            if parent_widget: # Check if parent widget exists
-                parent_layout = parent_widget.layout() # Get the QHBoxLayout
-                if parent_layout:
-                    # Find the QLabel that is likely before the combo box
-                    for i in range(parent_layout.count()):
-                        widget_item = parent_layout.itemAt(i)
-                        if widget_item and widget_item.widget() == self.num_bars_combo:
-                            if i > 0:
-                                prev_item = parent_layout.itemAt(i-1)
-                                if prev_item and isinstance(prev_item.widget(), QLabel):
-                                    num_bars_label_widget = prev_item.widget()
-                                    break
-        if hasattr(self, 'num_bars_combo'):
-            self._set_control_enabled(
-                self.num_bars_combo, num_bars_label_widget,
-                enabled=not is_blues_prog,
-                tooltip_enabled=tooltip_num_bars,
-                reason_disabled=reason_num_bars_disabled_blues
-            )
-            if is_blues_prog:
-                 try:
-                     index_12 = NUM_BARS_OPTIONS.index("12 Bars")
-                     self.num_bars_combo.setCurrentIndex(index_12)
-                 except ValueError:
-                     if self.num_bars_combo.count() > 2: self.num_bars_combo.setCurrentIndex(2) # Fallback
+             # Find the label associated with num_bars_combo
+             # Assume structure: Label, ComboBox, Spacer
+             parent_widget = self.num_bars_combo.parentWidget()
+             if parent_widget and parent_widget.layout():
+                 layout = parent_widget.layout()
+                 # Find index of combo box
+                 combo_index = -1
+                 for i in range(layout.count()):
+                     item = layout.itemAt(i)
+                     if item and item.widget() == self.num_bars_combo:
+                         combo_index = i
+                         break
+                 # Get the widget at the previous index if it's a QLabel
+                 if combo_index > 0:
+                     prev_item = layout.itemAt(combo_index - 1)
+                     if prev_item and isinstance(prev_item.widget(), QLabel):
+                         num_bars_label_widget = prev_item.widget()
+
+             self._set_control_enabled(
+                 self.num_bars_combo, num_bars_label_widget,
+                 enabled=not is_blues_prog,
+                 tooltip_enabled=tooltip_num_bars,
+                 reason_disabled=reason_num_bars_disabled_blues
+             )
+             if is_blues_prog:
+                  try:
+                      index_12 = NUM_BARS_OPTIONS.index("12 Bars")
+                      self.num_bars_combo.setCurrentIndex(index_12)
+                  except ValueError:
+                      if self.num_bars_combo.count() > 2: self.num_bars_combo.setCurrentIndex(2) # Fallback
 
         # Cadence (Disabled for Blues)
         if hasattr(self, 'cadence_combo') and hasattr(self, 'cadence_label'):
@@ -2495,7 +2552,7 @@ class ChorgiWindow(QWidget):
         # (Function remains the same)
         self.last_saved_midi_path = file_path
         if hasattr(self, 'drag_midi_label'):
-            self.drag_midi_label.set_midi_path(file_path)
+            self.drag_midi_label.set_midi_path(file_path) # This already handles tooltips via setProperty
 
 
     # --- Core Logic Wrapper Methods ---
@@ -2607,14 +2664,14 @@ class ChorgiWindow(QWidget):
                 # --- Update Piano Roll ---
                 if hasattr(self, 'piano_roll_widget'):
                     total_beats = self.last_generated_num_bars * 4.0
+                    # FIX: Always pass generated chords if generation was successful
                     self.piano_roll_widget.set_data(
-                        self.generated_chords_progression if self.include_arp or self.include_melody or self.include_bass else [], # Pass chords only if other parts included for context
+                        self.generated_chords_progression, # Always pass chords
                         self.generated_arp_midi_data if self.include_arp else [],
                         self.generated_bass_midi_data if self.include_bass else [],
                         self.generated_melody_midi_data if self.include_melody else [],
                         total_beats
                     )
-
 
                 # Generate Filename
                 prog_tag = f"_{prog_style_selection.split(' ')[0]}" # e.g., _Pop, _Blues
@@ -3296,11 +3353,11 @@ class ChorgiWindow(QWidget):
                 regen_data = self.generated_arp_midi_data; regen_name = "Arp"; track_suffix = f"Regenerated Arp ({last_key})"; vol = 95
                 if not regen_data: self.show_warning_message("Regen Warning", "Arp generation produced no notes.")
                 else:
-                    # Write ONLY the Arp part to a separate file
+                    # --- FIX: Write ONLY the Arp part to a separate file ---
                     out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
                     out_path_single = os.path.join(self.save_directory, out_fname_single)
-                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Arp", vol, bpm, embed_t)
-                    single_part_out_path = out_path_single
+                    single_part_out_path = self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Arp", vol, bpm, embed_t)
+                    # --- END FIX ---
 
             elif part_to_regen == "Melody":
                 self.update_status("Regenerating Melody..."); self.generated_melody_midi_data = []
@@ -3325,11 +3382,11 @@ class ChorgiWindow(QWidget):
                 self.generated_melody_midi_data = regen_data; regen_name = "Melody"; track_suffix = f"Regenerated Melody ({last_key})"; vol = 100
                 if not regen_data: self.show_warning_message("Regen Warning", "Melody generation produced no notes.")
                 else:
-                    # Write ONLY the Melody part to a separate file
+                    # --- FIX: Write ONLY the Melody part to a separate file ---
                     out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
                     out_path_single = os.path.join(self.save_directory, out_fname_single)
-                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Melody", vol, bpm, embed_t)
-                    single_part_out_path = out_path_single
+                    single_part_out_path = self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Melody", vol, bpm, embed_t)
+                    # --- END FIX ---
 
             elif part_to_regen == "Bass":
                  self.update_status("Regenerating Bass..."); self.generated_bass_midi_data = []
@@ -3350,11 +3407,18 @@ class ChorgiWindow(QWidget):
                  regen_data = self.generated_bass_midi_data; regen_name = "Bass"; track_suffix = f"Regenerated Bass ({last_key} {bass_style_sel})"; vol = 110
                  if not regen_data: self.show_warning_message("Regen Warning", "Bass generation produced no notes.")
                  else:
-                    # Write ONLY the Bass part to a separate file
+                    # --- FIX: Write ONLY the Bass part to a separate file ---
                     out_fname_single = f"{base_name}_{regen_name}_SINGLE_Regen_{self.generation_count}.mid"
                     out_path_single = os.path.join(self.save_directory, out_fname_single)
-                    self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Bass", vol, bpm, embed_t)
-                    single_part_out_path = out_path_single
+                    single_part_out_path = self._execute_write_single_part_midi(out_path_single, track_suffix, regen_data, "Bass", vol, bpm, embed_t)
+                    # --- END FIX ---
+
+
+            # --- FIX: Removed the call to write the combined MIDI file ---
+            # self._execute_write_midi_file(
+            #     out_path, include_arp, include_melody, include_bass,
+            #     melody_style_sel, melody_speed_sel, bpm, embed_t
+            # )
 
 
             # --- Update Piano Roll with current full state ---
@@ -3364,8 +3428,9 @@ class ChorgiWindow(QWidget):
                 include_arp_disp = self.include_arp_check.isChecked()
                 include_melody_disp = self.include_melody_check.isChecked()
                 include_bass_disp = self.include_bass_check.isChecked()
+                # FIX: Always pass generated chords if regeneration was successful
                 self.piano_roll_widget.set_data(
-                    self.generated_chords_progression if include_arp_disp or include_melody_disp or include_bass_disp else [],
+                    self.generated_chords_progression, # Always pass chords
                     self.generated_arp_midi_data if include_arp_disp else [],
                     self.generated_bass_midi_data if include_bass_disp else [],
                     self.generated_melody_midi_data if include_melody_disp else [],

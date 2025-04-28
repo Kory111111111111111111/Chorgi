@@ -261,11 +261,11 @@ def generate_chorgi_major_chord_pool(key_root_name, root_midi_note, complexity="
     for degree_index, roman in enumerate(roman_numerals):
         chord_root_note = scale_notes[degree_index]; chord_root_name = NOTE_NAMES[chord_root_note % 12]
         triad_key = roman; seventh_key = roman + ("maj7" if roman in ["I", "IV"] else ("7" if roman == "V" else ("m7b5" if roman == "vii" else "m7")))
-        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': roman}
-        if seventh_key in chord_defs: pool[f"{chord_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': roman}
+        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': roman} # Simplified function store
+        if seventh_key in chord_defs: pool[f"{chord_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': seventh_key} # Simplified function store
         if is_extra:
             ninth_key = roman + ("maj9" if roman in ["I", "IV"] else ("9" if roman == "V" else ("m9b5" if roman == "vii" else "m9")))
-            if ninth_key in chord_defs: pool[f"{chord_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': roman}
+            if ninth_key in chord_defs: pool[f"{chord_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': ninth_key} # Simplified function store
             # Add other extensions based on the original logic...
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -283,6 +283,8 @@ def generate_chorgi_minor_chord_pool(key_root_name, root_midi_note, complexity="
                    "V7(hm)": {"name": "7", "intervals": [0, 4, 7, 10]}, # V7 based on root+7
                    # Extensions (examples)
                    "i9": {"name": "m9", "intervals": [0, 3, 7, 10, 14]}, "V9(hm)": {"name": "9", "intervals": [0, 4, 7, 10, 14]},
+                   "V7b9(hm)": {"name": "7b9", "intervals": [0, 4, 7, 10, 13]}, # Example 7b9
+                   "iiø9": {"name": "m9b5", "intervals": [0, 3, 6, 10, 14]}, # Example m9b5
                  }
     roman_numerals = ["i", "ii", "III", "iv", "v", "VI", "VII"]
     scale_indices = {0: "i", 2: "ii", 3: "III", 5: "iv", 7: "v", 8: "VI", 10: "VII"}
@@ -301,11 +303,11 @@ def generate_chorgi_minor_chord_pool(key_root_name, root_midi_note, complexity="
              chord_root_name = NOTE_NAMES[chord_root_note % 12]
              current_func = "V(hm)" # Indicate harmonic minor function
 
-        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': current_func}
+        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': current_func} # Simplified func
         # Use harmonic root for V7
         v7_root_note = v_chord_note if seventh_key == harmonic_v7_key else chord_root_note
         v7_root_name = NOTE_NAMES[v7_root_note % 12] if seventh_key == harmonic_v7_key else chord_root_name
-        if seventh_key in chord_defs: pool[f"{v7_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(v7_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': current_func}
+        if seventh_key in chord_defs: pool[f"{v7_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(v7_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': current_func} # Simplified func
 
         if is_extra:
             ninth_key, alt_ninth_key = None, None
@@ -319,8 +321,8 @@ def generate_chorgi_minor_chord_pool(key_root_name, root_midi_note, complexity="
             elif roman == "i": ninth_key = "i9"
             # ... other extension logic ...
 
-            if ninth_key and ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext}
-            # ... handle alt_ninth_key ...
+            if ninth_key and ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
+            if alt_ninth_key and alt_ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[alt_ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[alt_ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
 
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -331,16 +333,20 @@ def generate_jazz_major_chord_pool(key_root_name, root_midi_note, complexity="St
     jazz_chord_defs = { "Imaj7": {"name": "maj7", "intervals": [0, 4, 7, 11]}, "Imaj9": {"name": "maj9", "intervals": [0, 4, 7, 11, 14]},
                         "ii7": {"name": "m7", "intervals": [0, 3, 7, 10]}, "ii9": {"name": "m9", "intervals": [0, 3, 7, 10, 14]},
                         "V7": {"name": "7", "intervals": [0, 4, 7, 10]}, "V9": {"name": "9", "intervals": [0, 4, 7, 10, 14]},
-                         # Add more jazz chords based on original...
+                        "iii7": {"name": "m7", "intervals": [0, 3, 7, 10]},
+                        "IVmaj7": {"name": "maj7", "intervals": [0, 4, 7, 11]},
+                        "vi7": {"name": "m7", "intervals": [0, 3, 7, 10]},
+                        "viiø7": {"name": "m7b5", "intervals": [0, 3, 6, 10]},
+                        # Add more jazz chords based on original...
                        }
     roman_numerals = ["I", "ii", "iii", "IV", "V", "vi", "vii"]
     for degree_index, roman in enumerate(roman_numerals):
         chord_root_note = scale_notes[degree_index]; chord_root_name = NOTE_NAMES[chord_root_note % 12]
         seventh_key = roman + ("maj7" if roman in ["I", "IV"] else ("7" if roman == "V" else ("m7b5" if roman == "vii" else "m7")))
-        if seventh_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': roman}
+        if seventh_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': seventh_key} # Simplified func
         if is_extra:
             ninth_key = roman + ("maj9" if roman in ["I", "IV"] else ("9" if roman == "V" else ("m9b5" if roman == "vii" else "m9")))
-            if ninth_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': roman}
+            if ninth_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': ninth_key} # Simplified func
             # Add other extensions based on the original logic...
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -351,10 +357,15 @@ def generate_jazz_minor_chord_pool(key_root_name, root_midi_note, complexity="St
     jazz_chord_defs = { "i7": {"name": "m7", "intervals": [0, 3, 7, 10]}, "i9": {"name": "m9", "intervals": [0, 3, 7, 10, 14]},
                         "iiø7": {"name": "m7b5", "intervals": [0, 3, 6, 10]}, "iiø9": {"name": "m9b5", "intervals": [0, 3, 6, 10, 14]}, # Check intervals
                         "V7(hm)": {"name": "7", "intervals": [0, 4, 7, 10]}, "V9(hm)": {"name": "9", "intervals": [0, 4, 7, 10, 14]},
+                        "IIImaj7": {"name": "maj7", "intervals": [0, 4, 7, 11]},
+                        "iv7": {"name": "m7", "intervals": [0, 3, 7, 10]},
+                        "VImaj7": {"name": "maj7", "intervals": [0, 4, 7, 11]},
+                        "VII7": {"name": "7", "intervals": [0, 4, 7, 10]}, # Often dominant quality in jazz minor
+                        "V7b9(hm)": {"name": "7b9", "intervals": [0, 4, 7, 10, 13]},
                         # Add more jazz chords based on original...
                       }
     roman_numerals = ["i", "ii", "III", "iv", "v", "VI", "VII"]
-    v_chord_note_hm = root_midi_note + 7; vii_chord_note_hm = root_midi_note + 11
+    v_chord_note_hm = root_midi_note + 7; vii_chord_note_hm = root_midi_note + 11 # Correct note for VII? Might be root+10 or root+11 depending on scale
 
     for degree_index, roman in enumerate(roman_numerals):
         chord_root_note_nat = scale_notes[degree_index]; chord_root_name_nat = NOTE_NAMES[chord_root_note_nat % 12]
@@ -365,18 +376,23 @@ def generate_jazz_minor_chord_pool(key_root_name, root_midi_note, complexity="St
         seventh_key = "V7(hm)" if is_v_chord else ("iiø7" if is_ii_chord else ("VII7" if is_vii_chord else roman + ("maj7" if roman in ["III", "VI"] else "m7")))
         current_root = chord_root_note; current_name = chord_root_name
         if seventh_key == "V7(hm)": current_root, current_name, current_func = v_chord_note_hm, NOTE_NAMES[v_chord_note_hm % 12], "V(hm)"
-        if seventh_key in jazz_chord_defs: pool[f"{current_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(current_root + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': current_func}
+        # VII chord root might need adjustment based on jazz context (often uses Nat Minor VII root + Dom7 quality)
+        # if seventh_key == "VII7": current_root, current_name = scale_notes[6], NOTE_NAMES[scale_notes[6] % 12] # Use natural minor root for VII7
+
+        if seventh_key in jazz_chord_defs: pool[f"{current_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(current_root + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': current_func} # Simplified func
 
         if is_extra:
             ninth_key, alt_keys = None, []
             current_func_ext = current_func
-            ext_root_note = chord_root_note; ext_root_name = chord_root_name
-            if is_v_chord: ninth_key, alt_keys, current_func_ext = "V9(hm)", ["V7b9(hm)"], "V(hm)"; ext_root_note, ext_root_name = v_chord_note_hm, NOTE_NAMES[v_chord_note_hm % 12]
+            ext_root_note = current_root; ext_root_name = current_name # Use potentially adjusted root from above
+            if is_v_chord: ninth_key, alt_keys, current_func_ext = "V9(hm)", ["V7b9(hm)"], "V(hm)"; # ext_root_note, ext_root_name = v_chord_note_hm, NOTE_NAMES[v_chord_note_hm % 12] # Already set
             elif is_ii_chord: ninth_key = "iiø9"
+            elif roman == "i": ninth_key = "i9"
             # ... other extension logic ...
 
-            if ninth_key and ninth_key in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext}
-            # ... handle alt_keys ...
+            if ninth_key and ninth_key in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
+            for alt_k in alt_keys:
+                 if alt_k and alt_k in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[alt_k]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[alt_k]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
 
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -875,6 +891,7 @@ def generate_melody_minimalist(progression_data, scale_notes, melody_style, melo
         current_time_in_chord = 0.0
         melody_chord_notes = transpose_notes(chord_notes_original, melody_octave_shift)
         stable_indices = [0, 2, 4] # R, 3, 5 approx
+        # FIX: Correct list comprehension syntax for diatonic_stable_tones
         diatonic_stable_tones = [n for i, n in enumerate(melody_chord_notes) if i < len(stable_indices) and i in stable_indices and n % 12 in scale_note_pcs and target_min_pitch <= n <= target_max_pitch]
         if not diatonic_stable_tones: diatonic_stable_tones = [n for n in melody_chord_notes if n % 12 in scale_note_pcs and target_min_pitch <= n <= target_max_pitch]
         if not diatonic_stable_tones:
@@ -1389,7 +1406,10 @@ class PianoRollWidget(QWidget):
                             x = w * (start_time / self.total_beats)
                             rect_w = w * (duration / self.total_beats)
                             # Use QRectF for precision, ensure minimum visible size
-                            note_rect = QRectF(x, y, max(1.5, rect_w - 0.2), max(1.0, note_height - 0.2)) # Min w=1.5, add tiny gap
+                            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # Removed the "- 0.2" gap for width and height
+                            note_rect = QRectF(x, y, max(1.5, rect_w), max(1.0, note_height))
+                            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< END MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>
                             painter.drawRect(note_rect)
                 else:
                     # arp_data = (pitch, start_time, duration, velocity)
@@ -1403,7 +1423,10 @@ class PianoRollWidget(QWidget):
                         x = w * (start_time / self.total_beats)
                         rect_w = w * (duration / self.total_beats)
                         # Use QRectF for precision, ensure minimum visible size
-                        note_rect = QRectF(x, y, max(1.5, rect_w - 0.2), max(1.0, note_height - 0.2)) # Min w=1.5, add tiny gap
+                        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        # Removed the "- 0.2" gap for width and height
+                        note_rect = QRectF(x, y, max(1.5, rect_w), max(1.0, note_height))
+                        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< END MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>
                         painter.drawRect(note_rect)
 
         # Draw tracks (order matters for overlap visibility - draw chords first)
@@ -2707,7 +2730,7 @@ class ChorgiWindow(QWidget):
 
         # --- Error Handling ---
         except ValueError as ve:
-            print(f"Value ERROR: {ve}"); traceback.print_exc(); self.show_error_message("Input Error", f"Check settings:\n{ve}"); self.update_status("Error: Invalid input."); self.update_drag_label(None)
+            print(f"Value ERROR: {ve}"); traceback.print_exc(); self.show_error_message("Input Error", f"Check settings:\n{ve}"); self.update_status("Error: Invalid input."); self.update_drag_label(None) # Clear drag label
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Generation Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except RuntimeError as re:
@@ -2888,7 +2911,7 @@ class ChorgiWindow(QWidget):
                  chord_name = _find_chord_by_function(chord_pool, func, key_type)
             # Default to "Smooth Random" if no template applies or fails
             if not chord_name or prog_style == "Smooth Random":
-                 # --- Corrected call to _find_next_smooth_chord (already expects 5) ---
+                 # --- Corrected call to _find_next_smooth_chord (already expects 6 return values) ---
                  chord_name, original_notes, final_voiced_notes, midi_notes, display_name, root_note = self._find_next_smooth_chord(
                      chord_pool, pool_chord_names, previous_chord_final_notes, previous_chord_name_base, # Pass final notes of prev chord
                      chord_bias, key_root_name, voicing_style, chord_octave_shift # Pass shift
@@ -3478,11 +3501,11 @@ class ChorgiWindow(QWidget):
             # --- END MODIFIED Chord Display ---
 
         except RuntimeError as rterr:
-            print(f"Runtime ERR regen: {rterr}"); traceback.print_exc(); self.show_error_message("Regen Error", f"{rterr}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
+            print(f"Runtime ERR regen: {rterr}"); traceback.print_exc(); self.show_error_message("Regen Error", f"{rterr}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None) # Clear drag label
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except Exception as e:
-            print(f"ERR regen: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected regeneration error:\n{e}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
+            print(f"ERR regen: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected regeneration error:\n{e}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None) # Clear drag label
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         finally: self.set_button_state(self.regenerate_button, True, "Regenerate Part"); self.set_button_state(self.generate_button, True)

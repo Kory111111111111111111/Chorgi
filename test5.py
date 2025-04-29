@@ -261,11 +261,11 @@ def generate_chorgi_major_chord_pool(key_root_name, root_midi_note, complexity="
     for degree_index, roman in enumerate(roman_numerals):
         chord_root_note = scale_notes[degree_index]; chord_root_name = NOTE_NAMES[chord_root_note % 12]
         triad_key = roman; seventh_key = roman + ("maj7" if roman in ["I", "IV"] else ("7" if roman == "V" else ("m7b5" if roman == "vii" else "m7")))
-        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': roman} # Simplified function store
-        if seventh_key in chord_defs: pool[f"{chord_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': seventh_key} # Simplified function store
+        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': roman}
+        if seventh_key in chord_defs: pool[f"{chord_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': roman}
         if is_extra:
             ninth_key = roman + ("maj9" if roman in ["I", "IV"] else ("9" if roman == "V" else ("m9b5" if roman == "vii" else "m9")))
-            if ninth_key in chord_defs: pool[f"{chord_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': ninth_key} # Simplified function store
+            if ninth_key in chord_defs: pool[f"{chord_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': roman}
             # Add other extensions based on the original logic...
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -303,11 +303,11 @@ def generate_chorgi_minor_chord_pool(key_root_name, root_midi_note, complexity="
              chord_root_name = NOTE_NAMES[chord_root_note % 12]
              current_func = "V(hm)" # Indicate harmonic minor function
 
-        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': current_func} # Simplified func
+        if triad_key in chord_defs: pool[f"{chord_root_name}{chord_defs[triad_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in chord_defs[triad_key]["intervals"]]), 'function': current_func}
         # Use harmonic root for V7
         v7_root_note = v_chord_note if seventh_key == harmonic_v7_key else chord_root_note
         v7_root_name = NOTE_NAMES[v7_root_note % 12] if seventh_key == harmonic_v7_key else chord_root_name
-        if seventh_key in chord_defs: pool[f"{v7_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(v7_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': current_func} # Simplified func
+        if seventh_key in chord_defs: pool[f"{v7_root_name}{chord_defs[seventh_key]['name']}"] = {'notes': sorted([(v7_root_note + i) for i in chord_defs[seventh_key]["intervals"]]), 'function': current_func}
 
         if is_extra:
             ninth_key, alt_ninth_key = None, None
@@ -321,8 +321,8 @@ def generate_chorgi_minor_chord_pool(key_root_name, root_midi_note, complexity="
             elif roman == "i": ninth_key = "i9"
             # ... other extension logic ...
 
-            if ninth_key and ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
-            if alt_ninth_key and alt_ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[alt_ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[alt_ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
+            if ninth_key and ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext}
+            if alt_ninth_key and alt_ninth_key in chord_defs: pool[f"{ext_root_name}{chord_defs[alt_ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in chord_defs[alt_ninth_key]["intervals"]])[:6], 'function': current_func_ext}
 
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -343,10 +343,10 @@ def generate_jazz_major_chord_pool(key_root_name, root_midi_note, complexity="St
     for degree_index, roman in enumerate(roman_numerals):
         chord_root_note = scale_notes[degree_index]; chord_root_name = NOTE_NAMES[chord_root_note % 12]
         seventh_key = roman + ("maj7" if roman in ["I", "IV"] else ("7" if roman == "V" else ("m7b5" if roman == "vii" else "m7")))
-        if seventh_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': seventh_key} # Simplified func
+        if seventh_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': roman}
         if is_extra:
             ninth_key = roman + ("maj9" if roman in ["I", "IV"] else ("9" if roman == "V" else ("m9b5" if roman == "vii" else "m9")))
-            if ninth_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': ninth_key} # Simplified func
+            if ninth_key in jazz_chord_defs: pool[f"{chord_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(chord_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': roman}
             # Add other extensions based on the original logic...
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -379,7 +379,7 @@ def generate_jazz_minor_chord_pool(key_root_name, root_midi_note, complexity="St
         # VII chord root might need adjustment based on jazz context (often uses Nat Minor VII root + Dom7 quality)
         # if seventh_key == "VII7": current_root, current_name = scale_notes[6], NOTE_NAMES[scale_notes[6] % 12] # Use natural minor root for VII7
 
-        if seventh_key in jazz_chord_defs: pool[f"{current_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(current_root + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': current_func} # Simplified func
+        if seventh_key in jazz_chord_defs: pool[f"{current_name}{jazz_chord_defs[seventh_key]['name']}"] = {'notes': sorted([(current_root + i) for i in jazz_chord_defs[seventh_key]["intervals"]]), 'function': current_func}
 
         if is_extra:
             ninth_key, alt_keys = None, []
@@ -390,9 +390,9 @@ def generate_jazz_minor_chord_pool(key_root_name, root_midi_note, complexity="St
             elif roman == "i": ninth_key = "i9"
             # ... other extension logic ...
 
-            if ninth_key and ninth_key in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
+            if ninth_key and ninth_key in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[ninth_key]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[ninth_key]["intervals"]])[:6], 'function': current_func_ext}
             for alt_k in alt_keys:
-                 if alt_k and alt_k in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[alt_k]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[alt_k]["intervals"]])[:6], 'function': current_func_ext} # Simplified func
+                 if alt_k and alt_k in jazz_chord_defs: pool[f"{ext_root_name}{jazz_chord_defs[alt_k]['name']}"] = {'notes': sorted([(ext_root_note + i) for i in jazz_chord_defs[alt_k]["intervals"]])[:6], 'function': current_func_ext}
 
     max_notes = 6 if is_extra else 4; return {name: data for name, data in pool.items() if len(data['notes']) <= max_notes}
 
@@ -1303,7 +1303,7 @@ class DragMidiLabel(QLabel):
 class PianoRollWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(120) # Set a default minimum height
+        self.setMinimumHeight(110) # << UI ADJUST: Reduced min height
         self.chords_data = []
         self.arp_data = []
         self.bass_data = []
@@ -1321,7 +1321,8 @@ class PianoRollWidget(QWidget):
         # Grid colors are now set in paintEvent based on theme
 
         # --- ADDED TOOLTIP ---
-        tooltip_text = ("Color Legend:\n"
+        tooltip_text = ("Visual representation of the generated MIDI notes.\n"
+                        "Color Legend:\n"
                         "- Blue: Chords\n"
                         "- Red: Bassline\n"
                         "- Green: Arpeggio\n"
@@ -1406,10 +1407,7 @@ class PianoRollWidget(QWidget):
                             x = w * (start_time / self.total_beats)
                             rect_w = w * (duration / self.total_beats)
                             # Use QRectF for precision, ensure minimum visible size
-                            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                            # Removed the "- 0.2" gap for width and height
                             note_rect = QRectF(x, y, max(1.5, rect_w), max(1.0, note_height))
-                            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< END MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>
                             painter.drawRect(note_rect)
                 else:
                     # arp_data = (pitch, start_time, duration, velocity)
@@ -1423,10 +1421,7 @@ class PianoRollWidget(QWidget):
                         x = w * (start_time / self.total_beats)
                         rect_w = w * (duration / self.total_beats)
                         # Use QRectF for precision, ensure minimum visible size
-                        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                        # Removed the "- 0.2" gap for width and height
                         note_rect = QRectF(x, y, max(1.5, rect_w), max(1.0, note_height))
-                        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< END MODIFICATION >>>>>>>>>>>>>>>>>>>>>>>>>
                         painter.drawRect(note_rect)
 
         # Draw tracks (order matters for overlap visibility - draw chords first)
@@ -1545,6 +1540,7 @@ class ChorgiWindow(QWidget):
 
         # --- Dark (Nord) Stylesheet ---
         # --- FIX: Reinstated MINIMAL QToolTip styling with rounded corners ---
+        # << UI ADJUST: Reduced GroupBox padding, DragMidiLabel min-height >>
         self.dark_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
@@ -1563,7 +1559,7 @@ class ChorgiWindow(QWidget):
                 border: 1px solid #434C5E; /* BORDER_COLOR_D */
                 border-radius: 5px;
                 margin-top: 10px; /* Space for title */
-                padding: 10px 5px 5px 5px;
+                padding: 8px 5px 5px 5px; /* << UI ADJUST: Reduced top padding */
             }}
             QGroupBox::title {{
                 subcontrol-origin: margin;
@@ -1596,7 +1592,7 @@ class ChorgiWindow(QWidget):
             }}
             QLabel#DragMidiLabel {{ /* Drag MIDI Label - BOLD and Smaller */
                  border: 2px dashed #4C566A; background-color: #3B4252; color: #A3BE8C;
-                 padding: 5px; border-radius: 5px; min-height: 35px; /* MODIFIED padding, min-height */
+                 padding: 5px; border-radius: 5px; min-height: 30px; /* << UI ADJUST: Reduced min-height */
                  font-size: 9pt;
                  font-weight: bold; /* MODIFIED */
             }}
@@ -1705,6 +1701,7 @@ class ChorgiWindow(QWidget):
 
         # --- Light (Grey) Stylesheet ---
         # --- FIX: Reinstated MINIMAL QToolTip styling with rounded corners ---
+        # << UI ADJUST: Reduced GroupBox padding, DragMidiLabel min-height >>
         self.light_stylesheet = f"""
             QWidget {{
                 font-family: Segoe UI, Arial, sans-serif; font-size: 10pt;
@@ -1723,7 +1720,7 @@ class ChorgiWindow(QWidget):
                 border: 1px solid #B0B0B0; /* BORDER_COLOR_L */
                 border-radius: 5px;
                 margin-top: 10px;
-                padding: 10px 5px 5px 5px;
+                padding: 8px 5px 5px 5px; /* << UI ADJUST: Reduced top padding */
             }}
             QGroupBox::title {{
                 subcontrol-origin: margin;
@@ -1756,7 +1753,7 @@ class ChorgiWindow(QWidget):
             }}
              QLabel#DragMidiLabel {{ /* Drag MIDI Label - BOLD and Smaller */
                  border: 2px dashed #A0A0A0; background-color: #E8E8E8; color: #005A9E;
-                 padding: 5px; border-radius: 5px; min-height: 35px; /* MODIFIED padding, min-height */
+                 padding: 5px; border-radius: 5px; min-height: 30px; /* << UI ADJUST: Reduced min-height */
                  font-size: 9pt;
                  font-weight: bold; /* MODIFIED */
             }}
@@ -1891,7 +1888,7 @@ class ChorgiWindow(QWidget):
 
 
     def initUI(self):
-        """Sets up the user interface with refactored controls."""
+        """Sets up the user interface with refactored controls and reduced spacing."""
         # --- Fonts --- (Simplified, rely more on stylesheet)
         self.button_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         self.status_font = QFont("Segoe UI", 11)
@@ -1901,13 +1898,13 @@ class ChorgiWindow(QWidget):
         self.tooltip_toggle_font = QFont("Segoe UI", 9) # Font for tooltip toggle
 
         self.setWindowTitle("Chorgi")
-        self.resize(750, 850) # Adjusted size for piano roll
+        self.resize(750, 800) # << UI ADJUST: Slightly reduced default height
         self.setAutoFillBackground(True)
 
         # --- Main Layout (Vertical) ---
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(15, 15, 15, 15)
-        self.main_layout.setSpacing(10)
+        self.main_layout.setContentsMargins(10, 10, 10, 10) # << UI ADJUST: Reduced margins
+        self.main_layout.setSpacing(8) # << UI ADJUST: Reduced main spacing
 
         # --- Tooltip Toggle Layout (Top Right) ---
         tooltip_layout = QHBoxLayout()
@@ -1921,53 +1918,46 @@ class ChorgiWindow(QWidget):
         self.tooltip_checkbox.stateChanged.connect(self._toggle_tooltips_slot)
         tooltip_layout.addWidget(self.tooltip_checkbox)
         self.main_layout.addLayout(tooltip_layout) # Add to main layout *first*
-        self.main_layout.addSpacing(5) # Add a little space
+        # self.main_layout.addSpacing(5) # Removed extra spacing here
 
         # --- Horizontal Layout for the two main columns of controls ---
         self.columns_layout = QHBoxLayout()
-        self.columns_layout.setSpacing(15)
+        self.columns_layout.setSpacing(10) # << UI ADJUST: Reduced column spacing
 
         # --- Column 1 Layout (Vertical) ---
         column1_layout = QVBoxLayout()
-        column1_layout.setSpacing(10)
+        column1_layout.setSpacing(8) # << UI ADJUST: Reduced spacing
 
         # Style, Key, Bars, Complexity, Tempo Group (Column 1)
         general_group = QGroupBox("General Settings")
         general_group.setFont(self.group_box_font)
         general_layout = QVBoxLayout(general_group)
-        general_layout.setSpacing(8)
+        general_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
         general_layout.addLayout(self.create_style_key_controls()) # Style (Pool), Key, Type
         general_layout.addLayout(self.create_structure_controls()) # Bars, Complexity, BPM
         column1_layout.addWidget(general_group)
 
-        # --- NEW: Progression Settings Group (Column 1) ---
-        prog_group = QGroupBox("Progression Settings")
+        # --- Progression Settings Group (Includes Bias now) (Column 1) ---
+        prog_group = QGroupBox("Progression & Chord Settings") # << UI ADJUST: Renamed Group
         prog_group.setFont(self.group_box_font)
-        prog_group.setLayout(self.create_progression_controls())
+        prog_group.setLayout(self.create_progression_controls()) # This now includes bias
         column1_layout.addWidget(prog_group)
-
-        # Chords Group (Bias Only Now) (Column 1)
-        chords_group = QGroupBox("Chord Settings")
-        chords_group.setFont(self.group_box_font)
-        chords_layout = QVBoxLayout(chords_group)
-        chords_layout.setSpacing(8)
-        chords_layout.addLayout(self.create_chord_bias_control())
-        column1_layout.addWidget(chords_group)
 
         # Arpeggiator Group (Column 1)
         arp_group = QGroupBox("Arpeggiator Settings")
         arp_group.setFont(self.group_box_font)
         arp_layout = QVBoxLayout(arp_group)
-        arp_layout.setSpacing(8)
+        arp_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
         arp_layout.addLayout(self.create_arp_controls())
         column1_layout.addWidget(arp_group)
 
-        column1_layout.addStretch(1)
+        # << UI ADJUST: Removed addStretch from column 1 >>
+        # column1_layout.addStretch(1)
         self.columns_layout.addLayout(column1_layout, 1)
 
         # --- Column 2 Layout (Vertical) ---
         column2_layout = QVBoxLayout()
-        column2_layout.setSpacing(10)
+        column2_layout.setSpacing(8) # << UI ADJUST: Reduced spacing
 
         # Melody Group (Column 2)
         melody_group = QGroupBox("Melody Settings")
@@ -1975,30 +1965,36 @@ class ChorgiWindow(QWidget):
         melody_group.setLayout(self.create_melody_controls()) # Now includes instrument type
         column2_layout.addWidget(melody_group)
 
-        # --- NEW: Bass Settings Group (Column 2) ---
+        # Bass Settings Group (Column 2)
         bass_group = QGroupBox("Bass Settings")
         bass_group.setFont(self.group_box_font)
         bass_group.setLayout(self.create_bass_settings_controls())
         column2_layout.addWidget(bass_group)
 
-        # Include Parts Group (Column 2)
+        # << UI ADJUST: Horizontal Layout for Include/Regenerate Groups >>
+        include_regen_layout = QHBoxLayout()
+        include_regen_layout.setSpacing(10) # Spacing between the two groups
+
+        # Include Parts Group (Column 2, Left side of HBox)
         include_group = QGroupBox("Include Parts")
         include_group.setFont(self.group_box_font)
         include_layout = QVBoxLayout(include_group)
-        include_layout.setSpacing(8)
+        include_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
         include_layout.addLayout(self.create_checkboxes())
-        column2_layout.addWidget(include_group)
+        include_regen_layout.addWidget(include_group, 1) # Add with stretch factor
 
-
-        # Regenerate Group (Column 2)
+        # Regenerate Group (Column 2, Right side of HBox)
         regenerate_group = QGroupBox("Regenerate")
         regenerate_group.setFont(self.group_box_font)
         regenerate_layout = QVBoxLayout(regenerate_group)
-        regenerate_layout.setSpacing(8)
+        regenerate_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
         regenerate_layout.addLayout(self.create_regenerate_section())
-        column2_layout.addWidget(regenerate_group)
+        include_regen_layout.addWidget(regenerate_group, 1) # Add with stretch factor
 
-        column2_layout.addStretch(1)
+        column2_layout.addLayout(include_regen_layout) # Add the HBox to Column 2
+
+        # << UI ADJUST: Removed addStretch from column 2 >>
+        # column2_layout.addStretch(1)
         self.columns_layout.addLayout(column2_layout, 1)
 
         # --- Add the Two Columns to the Main Layout ---
@@ -2011,10 +2007,11 @@ class ChorgiWindow(QWidget):
         self.create_piano_roll_widget() # <<< ADDED PIANO ROLL
         self.main_layout.addSpacing(5)
         self.create_drag_drop_area()
-        self.main_layout.addSpacing(10) # Reduced spacing
+        self.main_layout.addSpacing(8) # << UI ADJUST: Reduced spacing
         self.create_generate_button()
 
         # --- Bottom Layout (Spanning) ---
+        # << UI ADJUST: Keep stretch here to push bottom bar down >>
         self.main_layout.addStretch(1)
         self.create_bottom_layout()
 
@@ -2029,7 +2026,7 @@ class ChorgiWindow(QWidget):
         widget.setToolTip(text if self.show_tooltips else "")
 
     def create_style_key_controls(self):
-        h_layout = QHBoxLayout(); h_layout.setSpacing(10)
+        h_layout = QHBoxLayout(); h_layout.setSpacing(8) # << UI ADJUST: Spacing
         style_label = QLabel("Pool Style:");
         self.style_combo = QComboBox();
         self.style_combo.addItems(STYLE_OPTIONS); self.style_combo.setCurrentIndex(0)
@@ -2037,7 +2034,7 @@ class ChorgiWindow(QWidget):
         self._set_widget_tooltip(self.style_combo, "Select the style defining the available chord pool (Chorgi/Jazzy)") # Tooltip
         self.style_combo.currentTextChanged.connect(self._update_ui_for_style)
         h_layout.addWidget(style_label); h_layout.addWidget(self.style_combo)
-        h_layout.addSpacerItem(QSpacerItem(10, 0))
+        h_layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         key_type_label = QLabel("Key Type:");
         self.key_type_group = QButtonGroup(self)
@@ -2051,9 +2048,10 @@ class ChorgiWindow(QWidget):
 
         key_type_layout = QHBoxLayout(); key_type_layout.setSpacing(5)
         key_type_layout.addWidget(self.major_radio); key_type_layout.addWidget(self.minor_radio)
-        key_type_layout.addStretch(0)
+        # key_type_layout.addStretch(0) # Removed stretch
+
         h_layout.addWidget(key_type_label); h_layout.addLayout(key_type_layout)
-        h_layout.addSpacerItem(QSpacerItem(10, 0))
+        h_layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         key_root_label = QLabel("Key Root:");
         self.key_root_combo = QComboBox();
@@ -2067,7 +2065,7 @@ class ChorgiWindow(QWidget):
         return h_layout
 
     def create_structure_controls(self):
-        layout = QHBoxLayout(); layout.setSpacing(10)
+        layout = QHBoxLayout(); layout.setSpacing(8) # << UI ADJUST: Spacing
         num_bars_label = QLabel("Bars:");
         self.num_bars_combo = QComboBox();
         self.num_bars_combo.addItems(NUM_BARS_OPTIONS)
@@ -2077,16 +2075,16 @@ class ChorgiWindow(QWidget):
         self._set_widget_tooltip(self.num_bars_combo, "Select the total length of the progression") # Tooltip
         self.num_bars_combo.currentTextChanged.connect(self._update_ui_for_style)
         layout.addWidget(num_bars_label); layout.addWidget(self.num_bars_combo)
-        layout.addSpacerItem(QSpacerItem(10, 0))
+        layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         self.complexity_label = QLabel("Complexity:");
         self.complexity_combo = QComboBox();
         self.complexity_combo.addItems(CHORD_COMPLEXITY_OPTIONS); self.complexity_combo.setCurrentIndex(0)
-        self.complexity_combo.setMinimumWidth(210)
+        self.complexity_combo.setMinimumWidth(180) # << UI ADJUST: Reduced min width
         self._set_widget_tooltip(self.complexity_combo, "Select chord complexity (affects available pool)") # Tooltip
         layout.addWidget(self.complexity_label); layout.addWidget(self.complexity_combo)
 
-        layout.addSpacerItem(QSpacerItem(10, 0))
+        layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         tempo_layout = QHBoxLayout(); tempo_layout.setSpacing(5)
         tempo_label = QLabel("BPM:"); tempo_label.setFont(self.tempo_label_font)
@@ -2099,17 +2097,19 @@ class ChorgiWindow(QWidget):
         self._set_widget_tooltip(self.embed_tempo_check, "Include the BPM information in the MIDI file.") # Tooltip
         tempo_layout.addWidget(tempo_label); tempo_layout.addWidget(self.bpm_spinbox)
         tempo_layout.addWidget(self.embed_tempo_check)
-        tempo_layout.addStretch(0)
+        # tempo_layout.addStretch(0) # Removed stretch
 
         layout.addLayout(tempo_layout)
         layout.addStretch(1)
         return layout
 
     def create_progression_controls(self):
+        # << UI ADJUST: Merged Bias control into this group >>
         v_layout = QVBoxLayout()
-        v_layout.setSpacing(8)
+        v_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
 
-        row1_layout = QHBoxLayout(); row1_layout.setSpacing(10)
+        # Row 1: Prog Style, Chord Rate
+        row1_layout = QHBoxLayout(); row1_layout.setSpacing(8) # << UI ADJUST: Spacing
         prog_style_label = QLabel("Prog Style:");
         self.prog_style_combo = QComboBox();
         self.prog_style_combo.addItems(PROG_STYLE_OPTIONS); self.prog_style_combo.setCurrentIndex(0)
@@ -2117,7 +2117,7 @@ class ChorgiWindow(QWidget):
         self._set_widget_tooltip(self.prog_style_combo, "Select the harmonic structure/template for the progression") # Tooltip
         self.prog_style_combo.currentTextChanged.connect(self._update_ui_for_style)
         row1_layout.addWidget(prog_style_label); row1_layout.addWidget(self.prog_style_combo)
-        row1_layout.addSpacerItem(QSpacerItem(15, 0))
+        row1_layout.addSpacerItem(QSpacerItem(10, 0)) # << UI ADJUST: Spacer
 
         self.chord_rate_label = QLabel("Chord Rate:");
         self.chord_rate_combo = QComboBox();
@@ -2128,14 +2128,15 @@ class ChorgiWindow(QWidget):
         row1_layout.addStretch(1)
         v_layout.addLayout(row1_layout)
 
-        row2_layout = QHBoxLayout(); row2_layout.setSpacing(10)
+        # Row 2: Voicing, Cadence, Bias
+        row2_layout = QHBoxLayout(); row2_layout.setSpacing(8) # << UI ADJUST: Spacing
         self.voicing_label = QLabel("Voicing:");
         self.voicing_style_combo = QComboBox();
         self.voicing_style_combo.addItems(VOICING_STYLE_OPTIONS); self.voicing_style_combo.setCurrentIndex(1)
         self.voicing_style_combo.setMinimumWidth(160)
         self._set_widget_tooltip(self.voicing_style_combo, "Select how chords are voiced (root, inversions, specific types)") # Tooltip
         row2_layout.addWidget(self.voicing_label); row2_layout.addWidget(self.voicing_style_combo)
-        row2_layout.addSpacerItem(QSpacerItem(15, 0))
+        row2_layout.addSpacerItem(QSpacerItem(10, 0)) # << UI ADJUST: Spacer
 
         self.cadence_label = QLabel("Cadence:");
         self.cadence_combo = QComboBox();
@@ -2143,31 +2144,33 @@ class ChorgiWindow(QWidget):
         self.cadence_combo.setMinimumWidth(130)
         self._set_widget_tooltip(self.cadence_combo, "Select the desired harmonic ending for the progression") # Tooltip
         row2_layout.addWidget(self.cadence_label); row2_layout.addWidget(self.cadence_combo)
+        row2_layout.addSpacerItem(QSpacerItem(10, 0)) # << UI ADJUST: Spacer
+
+        # << UI ADJUST: Added Bias here >>
+        self.chord_bias_label = QLabel("Bias:");
+        self.chord_bias_combo = QComboBox();
+        self.chord_bias_combo.addItems(CHORD_BIAS_OPTIONS); self.chord_bias_combo.setCurrentIndex(0)
+        self.chord_bias_combo.setMinimumWidth(90)
+        self._set_widget_tooltip(self.chord_bias_combo, "Favor darker (minor/dim) or lighter (major) chords (subtle effect)") # Tooltip
+        row2_layout.addWidget(self.chord_bias_label); row2_layout.addWidget(self.chord_bias_combo)
+
         row2_layout.addStretch(1)
         v_layout.addLayout(row2_layout)
 
         return v_layout
 
-    def create_chord_bias_control(self):
-        layout = QHBoxLayout(); layout.setSpacing(10)
-        self.chord_bias_label = QLabel("Chord Bias:");
-        self.chord_bias_combo = QComboBox();
-        self.chord_bias_combo.addItems(CHORD_BIAS_OPTIONS); self.chord_bias_combo.setCurrentIndex(0)
-        self.chord_bias_combo.setMinimumWidth(100)
-        self._set_widget_tooltip(self.chord_bias_combo, "Favor darker (minor/dim) or lighter (major) chords (subtle effect)") # Tooltip
-        layout.addWidget(self.chord_bias_label); layout.addWidget(self.chord_bias_combo)
-        layout.addStretch(1)
-        return layout
+    # << UI ADJUST: Removed create_chord_bias_control as it's merged >>
+    # def create_chord_bias_control(self): ...
 
     def create_arp_controls(self):
-         layout = QHBoxLayout(); layout.setSpacing(10)
+         layout = QHBoxLayout(); layout.setSpacing(8) # << UI ADJUST: Spacing
          arp_style_label = QLabel("Arp Style:");
          self.arp_style_combo = QComboBox();
          self.arp_style_combo.addItems(ARP_STYLE_OPTIONS); self.arp_style_combo.setCurrentIndex(0)
          self.arp_style_combo.setMinimumWidth(170)
          self._set_widget_tooltip(self.arp_style_combo, "Select the note order pattern for the arpeggiator") # Tooltip
          layout.addWidget(arp_style_label); layout.addWidget(self.arp_style_combo)
-         layout.addSpacerItem(QSpacerItem(15, 0))
+         layout.addSpacerItem(QSpacerItem(10, 0)) # << UI ADJUST: Spacer
          arp_octave_label = QLabel("Arp Octave:");
          self.arp_octave_combo = QComboBox();
          self.arp_octave_combo.addItems(ARP_OCTAVE_OPTIONS); self.arp_octave_combo.setCurrentIndex(0)
@@ -2179,17 +2182,17 @@ class ChorgiWindow(QWidget):
 
     def create_melody_controls(self):
         container_layout = QVBoxLayout()
-        container_layout.setSpacing(8)
+        container_layout.setSpacing(6) # << UI ADJUST: Reduced spacing
 
         # Row 1: Generation Style & Instrument
-        row1_layout = QHBoxLayout(); row1_layout.setSpacing(10)
+        row1_layout = QHBoxLayout(); row1_layout.setSpacing(8) # << UI ADJUST: Spacing
         melody_gen_style_label = QLabel("Melody Gen:");
         self.melody_gen_style_combo = QComboBox();
         self.melody_gen_style_combo.addItems(MELODY_GEN_STYLE_OPTIONS); self.melody_gen_style_combo.setCurrentIndex(0)
         self.melody_gen_style_combo.setMinimumWidth(150)
         self._set_widget_tooltip(self.melody_gen_style_combo, "Choose the algorithm used for generating melody notes") # Tooltip
         row1_layout.addWidget(melody_gen_style_label); row1_layout.addWidget(self.melody_gen_style_combo)
-        row1_layout.addSpacerItem(QSpacerItem(15, 0))
+        row1_layout.addSpacerItem(QSpacerItem(10, 0)) # << UI ADJUST: Spacer
 
         melody_instr_label = QLabel("Instrument:"); # NEW
         self.melody_instrument_combo = QComboBox(); # NEW
@@ -2201,14 +2204,14 @@ class ChorgiWindow(QWidget):
         container_layout.addLayout(row1_layout)
 
         # Row 2: Octave, Articulation & Speed
-        row2_layout = QHBoxLayout(); row2_layout.setSpacing(10)
+        row2_layout = QHBoxLayout(); row2_layout.setSpacing(8) # << UI ADJUST: Spacing
         melody_octave_label = QLabel("Mel Octave:");
         self.melody_octave_combo = QComboBox();
         self.melody_octave_combo.addItems(MELODY_OCTAVE_OPTIONS); self.melody_octave_combo.setCurrentIndex(0)
         self.melody_octave_combo.setMinimumWidth(70)
         self._set_widget_tooltip(self.melody_octave_combo, "Select the target octave range for the melody") # Tooltip
         row2_layout.addWidget(melody_octave_label); row2_layout.addWidget(self.melody_octave_combo)
-        row2_layout.addSpacerItem(QSpacerItem(10, 0)) # Smaller spacer
+        row2_layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         melody_style_label = QLabel("Articulation:");
         self.melody_style_combo = QComboBox();
@@ -2216,7 +2219,7 @@ class ChorgiWindow(QWidget):
         self.melody_style_combo.setMinimumWidth(100)
         self._set_widget_tooltip(self.melody_style_combo, "Select melody note articulation (Legato: connected, Staccato: short/detached)") # Tooltip
         row2_layout.addWidget(melody_style_label); row2_layout.addWidget(self.melody_style_combo)
-        row2_layout.addSpacerItem(QSpacerItem(10, 0)) # Smaller spacer
+        row2_layout.addSpacerItem(QSpacerItem(5, 0)) # << UI ADJUST: Spacer
 
         melody_speed_label = QLabel("Mel Speed:");
         self.melody_speed_combo = QComboBox();
@@ -2232,7 +2235,7 @@ class ChorgiWindow(QWidget):
     # --- NEW: Bass Settings Controls ---
     def create_bass_settings_controls(self):
         layout = QHBoxLayout()
-        layout.setSpacing(10)
+        layout.setSpacing(8) # << UI ADJUST: Spacing
         bass_style_label = QLabel("Bass Style:")
         self.bass_style_combo = QComboBox()
         self.bass_style_combo.addItems(BASS_STYLE_OPTIONS)
@@ -2246,8 +2249,9 @@ class ChorgiWindow(QWidget):
 
 
     def create_checkboxes(self):
-        layout = QHBoxLayout(); layout.setSpacing(20);
-        layout.addStretch(1)
+        # << UI ADJUST: Use VBox inside GroupBox for better alignment >>
+        layout = QVBoxLayout(); layout.setSpacing(4);
+        # layout.addStretch(1) # Remove stretch
         self.include_arp_check = QCheckBox("Arpeggio");
         self.include_arp_check.setChecked(self.include_arp)
         self._set_widget_tooltip(self.include_arp_check, "Include the generated arpeggio track in the MIDI output") # Tooltip
@@ -2260,7 +2264,7 @@ class ChorgiWindow(QWidget):
         self.include_bass_check.setChecked(self.include_bass)
         self._set_widget_tooltip(self.include_bass_check, "Include the generated bassline track in the MIDI output") # Tooltip
         layout.addWidget(self.include_bass_check)
-        layout.addStretch(1)
+        layout.addStretch(1) # Add stretch *within* the VBox
         return layout
 
     def create_chord_display_label(self):
@@ -2301,19 +2305,32 @@ class ChorgiWindow(QWidget):
         self.main_layout.addLayout(layout)
 
     def create_regenerate_section(self):
-        layout = QHBoxLayout(); layout.setSpacing(10);
+        # << UI ADJUST: Use VBox inside GroupBox >>
+        layout = QVBoxLayout(); layout.setSpacing(5);
+        # Row 1: Combo Box
+        regen_combo_layout = QHBoxLayout(); regen_combo_layout.setSpacing(5)
         regen_label = QLabel("Regen Part:");
         self.regenerate_part_combo = QComboBox();
         self.regenerate_part_combo.addItems(REGENERATE_PART_OPTIONS); self.regenerate_part_combo.setMinimumWidth(90)
         self._set_widget_tooltip(self.regenerate_part_combo, "Select which part to regenerate using the current settings") # Tooltip
+        regen_combo_layout.addWidget(regen_label)
+        regen_combo_layout.addWidget(self.regenerate_part_combo)
+        regen_combo_layout.addStretch(1)
+        layout.addLayout(regen_combo_layout)
+
+        # Row 2: Button
+        regen_button_layout = QHBoxLayout()
         self.regenerate_button = QPushButton("Regenerate Part")
         self.regenerate_button.setObjectName("RegenerateButton"); self.regenerate_button.setFont(self.button_font)
         self.regenerate_button.setEnabled(False)
         self._set_widget_tooltip(self.regenerate_button, "Regenerate only the selected part (Arp, Melody, or Bass)") # Tooltip
         self.regenerate_button.clicked.connect(self.run_regenerate_selected_parts)
-        layout.addWidget(regen_label); layout.addWidget(self.regenerate_part_combo)
-        layout.addSpacerItem(QSpacerItem(5, 0)); layout.addWidget(self.regenerate_button)
-        layout.addStretch(1)
+        regen_button_layout.addStretch(1) # Center the button
+        regen_button_layout.addWidget(self.regenerate_button)
+        regen_button_layout.addStretch(1)
+        layout.addLayout(regen_button_layout)
+
+        layout.addStretch(1) # Add stretch *within* the VBox
         return layout
 
     def create_bottom_layout(self):
@@ -2612,7 +2629,7 @@ class ChorgiWindow(QWidget):
             voicing_style_selection = self.voicing_style_combo.currentText()
             cadence_selection = self.cadence_combo.currentText() if self.cadence_combo.isEnabled() else "Any"
 
-            # Chord Settings
+            # Chord Settings (Bias is retrieved here now)
             chord_bias_selection = self.chord_bias_combo.currentText()
 
             # Bass Settings --- NEW ---
@@ -2730,7 +2747,7 @@ class ChorgiWindow(QWidget):
 
         # --- Error Handling ---
         except ValueError as ve:
-            print(f"Value ERROR: {ve}"); traceback.print_exc(); self.show_error_message("Input Error", f"Check settings:\n{ve}"); self.update_status("Error: Invalid input."); self.update_drag_label(None) # Clear drag label
+            print(f"Value ERROR: {ve}"); traceback.print_exc(); self.show_error_message("Input Error", f"Check settings:\n{ve}"); self.update_status("Error: Invalid input."); self.update_drag_label(None)
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Generation Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except RuntimeError as re:
@@ -3501,11 +3518,11 @@ class ChorgiWindow(QWidget):
             # --- END MODIFIED Chord Display ---
 
         except RuntimeError as rterr:
-            print(f"Runtime ERR regen: {rterr}"); traceback.print_exc(); self.show_error_message("Regen Error", f"{rterr}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None) # Clear drag label
+            print(f"Runtime ERR regen: {rterr}"); traceback.print_exc(); self.show_error_message("Regen Error", f"{rterr}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         except Exception as e:
-            print(f"ERR regen: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected regeneration error:\n{e}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None) # Clear drag label
+            print(f"ERR regen: {e}"); traceback.print_exc(); self.show_error_message("Error", f"Unexpected regeneration error:\n{e}"); self.update_status(f"Error regenerating {part_to_regen}."); self.update_drag_label(None)
             if hasattr(self, 'chord_display_label'): self.chord_display_label.setText("(Regen Failed)")
             if hasattr(self, 'piano_roll_widget'): self.piano_roll_widget.set_data([],[],[],[], 16.0) # Clear piano roll
         finally: self.set_button_state(self.regenerate_button, True, "Regenerate Part"); self.set_button_state(self.generate_button, True)
@@ -3610,8 +3627,8 @@ class ChorgiWindow(QWidget):
 # --- Application Entry Point ---
 if __name__ == '__main__':
     # --- Changed Application Name and Version ---
-    QCoreApplication.setApplicationName("Chorgi Version 0.7.1") # Incremented Version slightly
-    QCoreApplication.setApplicationVersion("0.7.1")
+    QCoreApplication.setApplicationName("Chorgi Version 0.7.2") # Incremented Version slightly for UI change
+    QCoreApplication.setApplicationVersion("0.7.2")
 
     app = QApplication(sys.argv)
 

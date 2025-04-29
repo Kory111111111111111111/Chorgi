@@ -69,8 +69,5 @@ Chorgi is a desktop application built with Python and PyQt6 that allows users to
 
 ## Contact
 
-Developed by Kory Drake. For support or feedback, contact: kory.drake207@gmail.com.
+Developed by Kory Drake. For support or feedback, contact: kory.drake207@gmail.com. Thank you to everyone who has helped thus far with testing. As we get closer to release I will be removing the source and we will be utilizing a private solution to host test builds.
 
-## License
-
-(License information not specified in the code. Consider adding a license file, e.g., MIT, GPL.)

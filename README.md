@@ -2,7 +2,7 @@
 
 ## Description
 
-Chorgi is a desktop application built with Python and PyQt6 that allows users to generate MIDI music compositions. It provides a graphical user interface (GUI) to control various parameters for creating chord progressions, arpeggios, melodies, and basslines automatically.
+Chorgi is a desktop application built with Python and PyQt6 that allows users to generate MIDI music compositions. It provides a graphical user interface (GUI) to control various parameters for creating chord progressions, arpeggios, melodies, and basslines automatically. It can be downloaded here https://github.com/Kory111111111111111111/Chorgi/releases/tag/Downloads
 
 ## Features
 

@@ -1,1 +1,0 @@
-pyinstaller --windowed --onefile --name Chorgi --icon="icons/chorgi_icon.ico" --add-data "icons;icons" "Chorgi 0.2 Alpha.py"

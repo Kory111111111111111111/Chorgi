@@ -4,9 +4,17 @@
 
 Chorgi is a desktop application for Windows, developed by an individual driven by a passion for music and creating tools to facilitate the music creation process. It offers a graphical interface for users to automatically generate MIDI music compositions, with controls for various parameters across chord progressions, arpeggios, melodies, and basslines.
 
+## Known Issues 
+
+Currently when you generate MIDI there is a chance that the piano roll may not show the notes in the correct color in which they represent
+
+Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
+
+Program is standalone and cannot be loaded into a DAW. As said before, this is not currently a priority and will most likely be in the 1.0 or 2.0 release. It still functions as a VST3 does, you just need to run open it outside of your DAW.
+
 ## Download
 
-You can download the latest executable version of Chorgi from the [Releases page](https://github.com/Kory111111111111111111/Chorgi/releases).
+You can download the latest executable version of Chorgi from the [Releases page](https://github.com/Kory111111111111111111/Chorgi/releases/tag/Downloads).
 
 ## Features
 

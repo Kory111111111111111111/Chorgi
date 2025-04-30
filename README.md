@@ -2,7 +2,11 @@
 
 ## Description
 
-Chorgi is a desktop application built with Python and PyQt6 that allows users to generate MIDI music compositions. It provides a graphical user interface (GUI) to control various parameters for creating chord progressions, arpeggios, melodies, and basslines automatically. It can be downloaded here https://github.com/Kory111111111111111111/Chorgi/releases/tag/Downloads
+Chorgi is a desktop application for Windows that allows users to generate MIDI music compositions. It provides a graphical user interface (GUI) to control various parameters for creating chord progressions, arpeggios, melodies, and basslines automatically.
+
+## Download
+
+You can download the latest executable version of Chorgi from the [Releases page](https://github.com/Kory111111111111111111/Chorgi/releases).
 
 ## Features
 
@@ -37,37 +41,17 @@ Chorgi is a desktop application built with Python and PyQt6 that allows users to
     * "Randomize" button to quickly generate new ideas.
     * Status bar for feedback during generation.
 
-## Requirements
-
-* Python 3.x
-* PyQt6: `pip install PyQt6`
-* midiutil: `pip install midiutil`
-
-## Installation
-
-1.  Ensure you have Python 3 installed.
-2.  Install the required libraries:
-    ```bash
-    pip install PyQt6 midiutil
-    ```
-3.  Save the code as a Python file (e.g., `chorgi_app.py`).
-
 ## Usage
 
-1.  Run the script from your terminal:
-    ```bash
-    python chorgi_app.py
-    ```
-    (Replace `chorgi_app.py` with the actual filename if you saved it differently).
-2.  Select the desired musical parameters using the dropdown menus, radio buttons, checkboxes, and spin boxes in the GUI.
-3.  Click the "Generate MIDI" button.
-4.  The application will generate the MIDI data based on your selections.
-5.  The generated MIDI file will be automatically saved in your `Documents/Chorgi MIDI Files` directory. The filename and save location will be displayed in the status bar.
-6.  You can click and drag the file path displayed in the "Drag:" label directly into your DAW or file explorer.
-7.  Use the "Regenerate Part" section to regenerate only the Arp, Melody, or Bassline using the current settings. This will save a *new* MIDI file containing only the regenerated part.
-8.  Use the "🎲" (Randomize) button to set all options to random values.
+1. Run the downloaded executable file.
+2. Select the desired musical parameters using the dropdown menus, radio buttons, checkboxes, and spin boxes in the GUI.
+3. Click the "Generate MIDI" button.
+4. The application will generate the MIDI data based on your selections.
+5. The generated MIDI file will be automatically saved in your `Documents/Chorgi MIDI Files` directory. The filename and save location will be displayed in the status bar.
+6. You can click and drag the file path displayed in the "Drag:" label directly into your DAW or file explorer.
+7. Use the "Regenerate Part" section to regenerate only the Arp, Melody, or Bassline using the current settings. This will save a *new* MIDI file containing only the regenerated part.
+8. Use the "🎲" (Randomize) button to set all options to random values.
 
 ## Contact
 
-Developed by Kory Drake. For support or feedback, contact: kory.drake207@gmail.com. Thank you to everyone who has helped thus far with testing. As we get closer to release I will be removing the source and we will be utilizing a private solution to host test builds.
-
+Developed by Kory Drake. For support or feedback, contact: kory.drake207@gmail.com. Thank you to everyone who has helped thus far with testing.

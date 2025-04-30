@@ -10,7 +10,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
 
-* Program is standalone and cannot be loaded into a DAW. As said before, this is not currently a priority and will most likely be in the 1.0 or 2.0 release. It still functions as a VST3 does, you just need to run open it outside of your DAW Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted **looking at you Ableton** 
+* Program is standalone and cannot be loaded into a DAW. As said before, this is not currently a priority and will most likely be in the 1.0 or 2.0 release. It still functions as a VST3 does, you just need to run open it outside of your DAW Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)
 
 ## Download
 

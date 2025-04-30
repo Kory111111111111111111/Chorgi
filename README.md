@@ -13,19 +13,19 @@ You can download the latest executable version of Chorgi from the [Releases page
 * **Graphical User Interface:** Easy-to-use interface built with PyQt6.
 * **Key Selection:** Choose the root note and whether the key is major or minor.
 * **Chord Generation:**
-    * **Pool Styles:** Select between 'Chorgi' (standard diatonic) and 'Jazzy' chord voicings/extensions.
-    * **Progression Styles:** Generate progressions based on templates like 'Pop (I-vi-IV-V)', 'Pachelbel-ish', 'ii-V-I Focused', 'Minor Pop (i-VI-III-VII)', 'Folk Strum', '12 Bar Blues', or use a 'Smooth Random' algorithm.
-    * **Customization:** Adjust chord complexity (triads/7ths or extensions), chord rate (1 or 2 per bar), voicing style (root position, inversions, Drop 2), cadence preference, and harmonic bias (standard, darker, lighter).
+    * **Pool Styles:** Select between 'Chorgi' (standard diatonic) and 'Jazzy' chord voicings/extensions. Chord pools now include `sus2`, `sus4`, `maj6`, and `m6` chords.
+    * **Progression Styles:** Generate progressions based on templates like 'Pop (I-V-vi-IV)', 'Blues (12 Bar I-IV-V)', 'Rock (I-IV-V)', 'Jazz (ii-V-I)', 'Folk (I-IV-V-I)', 'Minor Ballad (i-VII-VI-i)', 'R&B/Soul (I-vi-ii-V)', or use a 'Smooth Random' algorithm.
+    * **Customization:** Adjust chord complexity (Standard Triads/7ths or Extra Extensions), chord rate (1 or 2 per bar), voicing style (Root Position, Allow Inversions, Prefer Drop 2, Quartal, So What), cadence preference (Any, Authentic V-I, Plagal IV-I), and harmonic bias (Standard, Darker, Lighter).
 * **Arpeggiator:**
-    * **Patterns:** Multiple arpeggio patterns (Ascending, Descending, Up-Down, Random Notes, Converge/Diverge, Random per Bar).
-    * **Rhythm:** Selectable note values (1/4, 1/8, 1/16) with an option for triplet variations.
-    * **Range:** Control the octave range relative to the chord.
+    * **Patterns:** Multiple arpeggio patterns (Random Consistent, Random per Bar, Ascending, Descending, Up-Down, Random Notes, Converge/Diverge).
+    * **Rhythm:** Selectable base note values (1/4, 1/8, 1/16 Note) with an option for a Triplet Modifier.
+    * **Range:** Control the octave range relative to the chord (Original, +/- 1 Octave, +/- 2 Octaves, +/- 3 Octaves).
 * **Melody Generation:**
     * **Algorithms:** Various generation styles like 'Chord Tone Focus', 'Scale Walker', 'Experimental', 'Leaps & Steps', 'Minimalist', 'Sustained Lead', 'Triplet Feel', or 'Random Style'.
     * **Customization:** Control melody articulation (Legato/Staccato), speed (Slow/Medium/Fast), and octave range (Mid/High).
-    * **Instrument Hint:** Select a target instrument type (Synth Lead, Keys, Piano, Pluck) to subtly influence generation.
+    * **Instrument Hint:** Select a target instrument type (None, Synth Lead, Keys, Piano, Pluck) to subtly influence generation patterns.
 * **Bassline Generation:**
-    * **Styles:** Generate basslines in different styles: 'Standard', 'Walking (Jazz)', 'Pop', 'RnB', 'Hip Hop', '808'.
+    * **Styles:** Generate basslines in different styles: 'Standard', 'Walking (Jazz)', 'Pop', 'RnB', 'Hip Hop', '808'. The '808' style includes dynamic variations and pitch slides.
 * **Part Control:**
     * Independently include or exclude the Arpeggio, Melody, and Bassline parts from the final output.
     * Regenerate individual parts (Arp, Melody, Bass) without changing the others.
@@ -33,24 +33,24 @@ You can download the latest executable version of Chorgi from the [Releases page
     * Set the Beats Per Minute (BPM).
     * Option to embed the tempo information directly into the MIDI file.
     * Generated MIDI files are automatically saved to a dedicated folder (`Documents/Chorgi MIDI Files`).
-    * **Drag and Drop:** Easily drag the generated MIDI file directly from the application into your Digital Audio Workstation (DAW).
+    * **Drag and Drop:** Easily drag the generated MIDI file directly from the application into your Digital Audio Workstation (DAW) or file explorer.
 * **Visualization & UI:**
     * Displays the generated chord progression names.
-    * Includes a simple Piano Roll visualization of the generated notes (Chords, Bass, Arp, Melody).
-    * Features Dark and Light UI themes.
-    * "Randomize" button to quickly generate new ideas.
+    * Includes a simple Piano Roll visualization of the generated notes (Chords, Bass, Arp, Melody). Notes are colored based on the part.
+    * Features a Dark (Nord) UI theme.
+    * "🎲" Randomize button to quickly set all options to random values.
     * Status bar for feedback during generation.
 
 ## Usage
 
-1. Run the downloaded executable file.
-2. Select the desired musical parameters using the dropdown menus, radio buttons, checkboxes, and spin boxes in the GUI.
-3. Click the "Generate MIDI" button.
-4. The application will generate the MIDI data based on your selections.
-5. The generated MIDI file will be automatically saved in your `Documents/Chorgi MIDI Files` directory. The filename and save location will be displayed in the status bar.
-6. You can click and drag the file path displayed in the "Drag:" label directly into your DAW or file explorer.
-7. Use the "Regenerate Part" section to regenerate only the Arp, Melody, or Bassline using the current settings. This will save a *new* MIDI file containing only the regenerated part.
-8. Use the "🎲" (Randomize) button to set all options to random values.
+1.  Run the downloaded executable file.
+2.  Select the desired musical parameters using the dropdown menus, radio buttons, checkboxes, and spin boxes in the GUI.
+3.  Click the "Generate MIDI" button.
+4.  The application will generate the MIDI data based on your selections.
+5.  The generated MIDI file will be automatically saved in your `Documents/Chorgi MIDI Files` directory. The filename and save location will be displayed in the status bar.
+6.  You can click and drag the file path displayed in the "Drag:" label directly into your DAW or file explorer.
+7.  Use the "Regenerate Part" section to regenerate only the Arp, Melody, or Bassline using the current settings. This will save a *new* MIDI file containing only the regenerated part.
+8.  Use the "🎲" (Randomize) button to set all options to random values.
 
 ## Contact
 

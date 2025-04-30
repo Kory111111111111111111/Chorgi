@@ -2,7 +2,7 @@
 
 ## Description
 
-Chorgi is a desktop application for Windows that allows users to generate MIDI music compositions. It provides a graphical user interface (GUI) to control various parameters for creating chord progressions, arpeggios, melodies, and basslines automatically.
+Chorgi is a desktop application for Windows, developed by an individual driven by a passion for music and creating tools to facilitate the music creation process. It offers a graphical interface for users to automatically generate MIDI music compositions, with controls for various parameters across chord progressions, arpeggios, melodies, and basslines.
 
 ## Download
 

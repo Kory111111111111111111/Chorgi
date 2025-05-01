@@ -1,5 +1,9 @@
 # Chorgi - MIDI Music Generator
 
+
+## Important Announcement: I am currently working on converting this to VST3, as I said before so not expect this before the 1.0 release, but I am actively working on it and will implement it as soon as it has the same performance as the Python version. 
+
+
 ## Description
 
 Chorgi is a desktop application for Windows, developed by an individual driven by a passion for music and creating tools to facilitate the music creation process. It offers a graphical interface for users to automatically generate MIDI music compositions, with controls for various parameters across chord progressions, arpeggios, melodies, and basslines.

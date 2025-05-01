@@ -12,8 +12,6 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Program is standalone and cannot be loaded into a DAW. As said before, this is not currently a priority and will most likely be in the 1.0 or 2.0 release. It still functions as a VST3 does, you just need to run open it outside of your DAW Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)
 
-* Bassline Generation is extremely repetetive. The fix for this actively being implemented and will be integrated into the next test build.
-
 * The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement it in due time.
 
 ## Download

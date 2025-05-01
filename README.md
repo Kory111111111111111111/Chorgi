@@ -14,7 +14,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Bassline Generation is extremely repetetive. The fix for this actively being implemented and will be integrated into the next test build.
 
-* The "Triplet Feel" Melody Algorhytm currently produces shit. There is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement itin due time.
+* The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement itin due time.
 
 ## Download
 

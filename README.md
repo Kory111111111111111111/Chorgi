@@ -6,7 +6,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 ## Known Issues 
 
-* Currently when you generate MIDI there is a chance that the piano roll may not show the notes in the correct color in which they represent. Bass notes are also being cutoff by the bottom of the piano roll on occasion, this is caused by me readjusting the overall size of the piano roll and not properly adjusting how the piano roll figures out how to organize all notes inside of the piano roll.
+* Currently when you generate MIDI there is a chance that the piano roll may not show the notes in the correct color in which they represent. Bass notes are also being cutoff by the bottom of the piano roll on occasion, this is caused by me readjusting the overall size of the piano roll and not properly adjusting how the piano roll figures out how to organize all notes inside of it.
 
 * Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
 
@@ -14,7 +14,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Bassline Generation is extremely repetetive. The fix for this actively being implemented and will be integrated into the next test build.
 
-* The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement itin due time.
+* The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement it in due time.
 
 ## Download
 

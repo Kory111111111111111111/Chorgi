@@ -37,7 +37,7 @@ You can download the latest executable version of Chorgi from the [Releases page
     * **Customization:** Control melody articulation (Legato/Staccato), speed (Slow/Medium/Fast), and octave range (Mid/High).
     * **Instrument Hint:** Select a target instrument type (None, Synth Lead, Keys, Piano, Pluck) to subtly influence generation patterns.
 * **Bassline Generation:**
-    * **Styles:** Generate basslines in different styles: 'Standard', 'Walking (Jazz)', 'Pop', 'RnB', 'Hip Hop', '808'. The '808' style includes dynamic variations and pitch slides.
+    * **Styles:** Generate basslines in different styles: 'Standard', 'Walking (Jazz)', 'Pop', 'RnB', 'Hip Hop', '808'. The '808' style includes dynamic variations and pitch slides. Currently the 808 primarily tries to make "slide" patterns, use the "Hip Hop" generation algorithm for none slide 808 bass patterns.
 * **Part Control:**
     * Independently include or exclude the Arpeggio, Melody, and Bassline parts from the final output.
     * Regenerate individual parts (Arp, Melody, Bass) without changing the others.

@@ -3,7 +3,8 @@
 
 ## Important Announcement: 
 
-I am currently working on converting this to VST3, in doing so I am realizing the entire UI will need to be rebuilt. 0.9.0 will be the last build for the next week or so while I slowly learn C++ and convert Python to C++ utlizing the JUCE framework. I have implemented the core functions already, at this point I am trying to implement the different chord and melody logics which are also being almost entirely rebuilt.
+The program is now converted to C++ built on the JUCE framework. This is only step one of creating the VST3, almost every function needs to be rebuit for the new coding language and framework adnd the UI is currently not built at all. But the VST3 opens which is farther than I was a day ago. ![image](https://github.com/user-attachments/assets/774dc514-e1f8-45bc-b345-e10c91ea7ff2)
+
 
 
 ## Description

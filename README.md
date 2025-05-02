@@ -3,7 +3,8 @@
 
 ## Important Announcement: 
 
-The program is now converted to C++ built on the JUCE framework. This is only step one of creating the VST3, almost every function needs to be rebuit for the new coding language and framework adnd the UI is currently not built at all. But the VST3 opens which is farther than I was a day ago. ![image](https://github.com/user-attachments/assets/774dc514-e1f8-45bc-b345-e10c91ea7ff2)
+The program is now converted to C++ built on the JUCE framework. This is only step one of creating the VST3, almost every function needs to be rebuit for the new coding language and framework adnd the UI is currently not built at all. But the VST3 opens which is farther than I was a day ago. 
+![image](https://github.com/user-attachments/assets/774dc514-e1f8-45bc-b345-e10c91ea7ff2)
 
 
 

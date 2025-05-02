@@ -3,7 +3,7 @@
 
 ## Important Announcement: 
 
-I am currently working on converting this to VST3, in doing so I am realizing the entire UI will need to be rebuilt. 0.9.0 will be the last build for the next week or so while I slowly learn C++ and convert Python to C++, I have implemented the core functions already, at this point I am trying to implement the different chord and melody logics which are also being almost entirely rebuilt. Once the VST3 version funnctions at the same level the Python version does I will upload the VST3 and will continue to stick with VST3 as the primary format as it is the most common. I will also at some point wrap it into AUv3 for Logic Pro users, currently most other popular DAWs support VST3. 
+I am currently working on converting this to VST3, in doing so I am realizing the entire UI will need to be rebuilt. 0.9.0 will be the last build for the next week or so while I slowly learn C++ and convert Python to C++, I have implemented the core functions already, at this point I am trying to implement the different chord and melody logics which are also being almost entirely rebuilt.
 
 
 ## Description

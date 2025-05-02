@@ -3,7 +3,7 @@
 
 ## Important Announcement: 
 
-I am currently working on converting this to VST3, in doing so I am realizing the entire UI will need to be rebuilt. 0.9.0 will be the last build for the next week or so while I slowly learn C++ and convert Python to C++, I have implemented the core functions already, at this point I am trying to implement the different chord and melody logics which are also being almost entirely rebuilt.
+I am currently working on converting this to VST3, in doing so I am realizing the entire UI will need to be rebuilt. 0.9.0 will be the last build for the next week or so while I slowly learn C++ and convert Python to C++ utlizing the JUCE framework. I have implemented the core functions already, at this point I am trying to implement the different chord and melody logics which are also being almost entirely rebuilt.
 
 
 ## Description
@@ -16,7 +16,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
 
-* Program is standalone and cannot be loaded into a DAW. As said before, this is not currently a priority and will most likely be in the 1.0 or 2.0 release. It still functions as a VST3 does, you just need to run open it outside of your DAW Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)
+* Program is standalone and cannot be loaded into a DAW. As said before, it still functions as a VST3 does, you just need to run open it outside of your DAW. Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)
 
 * The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement it in due time.
 

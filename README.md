@@ -3,8 +3,7 @@
 
 ## Important Announcement: 
 
-![image](https://github.com/user-attachments/assets/ddf44a68-817a-4631-b0c3-0d3d5228cfe1) I am still in the process of converting Chorgi to C++ on the JUCE framework. Please bear in mind this is not an easy task for me and is going to take a significant ammount of time, I would not be doing this if I did not truly belive that this is a neccesarry step for the Plugins success. 
-
+The likelyhood of this being released as a VST has severely diminished, it is unfortunately beyond the scope of what I can handle. Going forward all of my projects will be in VST format, this will remain as an EXE and eventually will be released on Mac and Linux. Thank you for your understanding. 
 
 
 
@@ -18,7 +17,7 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 * Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
 
-* Program is standalone and cannot be loaded into a DAW. As said before, it still functions as a VST3 does, you just need to run open it outside of your DAW. Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)
+~~* Program is standalone and cannot be loaded into a DAW. As said before, it still functions as a VST3 does, you just need to run open it outside of your DAW. Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)~~
 
 * The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement it in due time.
 

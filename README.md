@@ -13,11 +13,11 @@ Chorgi is a desktop application for Windows, developed by an individual driven b
 
 ## Known Issues 
 
-* Currently when you generate MIDI there is a chance that the piano roll may not show the notes in the correct color in which they represent. Bass notes are also being cutoff by the bottom of the piano roll on occasion, this is caused by me readjusting the overall size of the piano roll and not properly adjusting how the piano roll figures out how to organize all notes inside of it.
+~~* Currently when you generate MIDI there is a chance that the piano roll may not show the notes in the correct color in which they represent. Bass notes are also being cutoff by the bottom of the piano roll on occasion, this is caused by me readjusting the overall size of the piano roll and not properly adjusting how the piano roll figures out how to organize all notes inside of it.~~ This issue has now been resolved and the fix has been implemented.
 
 * Piano roll still cannot be chagned, this is a very complex thing for me and I am already struggling to get it to work the way it does now, I will be implemnting an editable Pian Roll in due time. 
 
-~~* Program is standalone and cannot be loaded into a DAW. As said before, it still functions as a VST3 does, you just need to run open it outside of your DAW. Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)~~
+~~* Program is standalone and cannot be loaded into a DAW. As said before, it still functions as a VST3 does, you just need to run open it outside of your DAW. Once I have verified all the features work as expected without bugs I will at that point start the conversion to C and wrap it into VST3, AUv3, and CLAP (as long as it becomes more widely adopted)~~ Please read important announcements.
 
 * The "Triplet Feel" Melody Algorhytm currently produces shit. That is the best way to put it, it is no longer entirely random, but it still sounds like shit which is not the intended behavior. I am actively working on updating this and will implement it in due time.
 

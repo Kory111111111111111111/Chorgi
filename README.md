@@ -69,4 +69,4 @@ You can download the latest executable version of Chorgi from the [Releases page
 
 ## Contact
 
-Developed by Kory Drake. For support or feedback, contact: kory.drake207@gmail.com. Thank you to everyone who has helped thus far with testing.
+Developed by Kory Drake (WAVFin Audio). For support or feedback, contact: kory.drake207@gmail.com. Thank you to everyone who has helped thus far with testing.

@@ -3,7 +3,7 @@
 
 ## Important Announcement: 
 
-The likelyhood of this being released as a VST has severely diminished, it is unfortunately beyond the scope of what I can handle. Going forward all of my projects will be in VST format, this will remain as an EXE and eventually will be released on Mac and Linux. Thank you for your understanding. 
+All future releases will now be on KoFi. Please download from this link. https://ko-fi.com/wavfin 
 
 
 
